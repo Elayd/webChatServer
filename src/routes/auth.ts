@@ -4,12 +4,14 @@ import { refreshController } from '../controllers/refreshController'
 import { registration } from '../controllers/regController'
 import { checkAuthController } from '../controllers/checkAuthController'
 import { protect } from '../middlewares/auth'
+import { logoutContoller } from '../controllers/logoutController'
 
 const securityRoute = express.Router()
 
 securityRoute.post('/auth', authController)
 securityRoute.post('/registration', registration)
 securityRoute.post('/refresh', refreshController)
+securityRoute.post('/logout', logoutContoller)
 
 securityRoute.use(protect)
 
