@@ -12,10 +12,11 @@ const createTokens = (userId) => {
 }
 
 const setAuthCookies = (res, accessToken, refreshToken) => {
-    res.cookie('access-token', accessToken, { httpOnly: true })
+    res.cookie('access-token', accessToken, { httpOnly: true, sameSite: 'lax' })
     res.cookie('refresh-token', refreshToken, {
         httpOnly: true,
-        path: '/api/security/refresh'
+        path: '/api/security/refresh',
+        sameSite: 'lax'
     })
 }
 

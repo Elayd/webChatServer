@@ -25,8 +25,6 @@ app.use(express.json())
 
 app.use(cookieParser())
 
-console.log(config.ORIGIN)
-
 app.use('/api/security/', securityRoute)
 
 app.use('/api/oauth/', oAuthRoute)

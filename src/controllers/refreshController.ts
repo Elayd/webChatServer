@@ -14,7 +14,8 @@ export const refreshController = async (req, res) => {
             expiresIn: config.JWT_EXPIRES_IN
         })
         res.cookie('access-token', newAccessToken, {
-            httpOnly: true
+            httpOnly: true,
+            sameSite: 'lax'
         })
         res.status(200).json({ message: 'Success' })
     } catch {
