@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 import { config } from '../config'
 export const protect = (req, res, next) => {
-    const token = req.cookies['access-token']
+    const token = req.headers['authorization']
     if (!token) {
         return res.status(400).json({ message: 'No token' })
     }

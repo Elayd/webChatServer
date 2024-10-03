@@ -2,7 +2,7 @@ export const config = {
     ORIGIN: 'http://localhost:8000/',
     PORT: 8000,
     JWT_SECRET: 'jwt_secret',
-    JWT_EXPIRES_IN: '30s',
+    JWT_EXPIRES_IN: '20s',
     JWT_REFRESH_SECRET: 'rf_jwt_secret',
     JWT_REFRESH_EXPIRES_IN: '30d',
     MONGO_URI:
