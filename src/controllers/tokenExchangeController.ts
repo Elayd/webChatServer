@@ -4,7 +4,7 @@ import User from '../models/user'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import axios from 'axios'
-import { handleTokensIntoCookie } from '../helpers/createTokens'
+import { handleTokens } from '../helpers/createTokens'
 
 export const tokenExchangeController = async (req, res) => {
     const { code } = req.query
@@ -33,7 +33,7 @@ export const tokenExchangeController = async (req, res) => {
                         return user
                     })
                     .then((user) => {
-                        handleTokensIntoCookie(res, user?._id)
+                        handleTokens(res, user?._id)
                     })
                     .catch((err) => {
                         if (err) {
@@ -42,7 +42,7 @@ export const tokenExchangeController = async (req, res) => {
                     })
             })
         } else {
-            handleTokensIntoCookie(res, user._id)
+            handleTokens(res, user._id)
         }
     } catch (err) {
         console.error('Error: ', err)

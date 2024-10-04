@@ -1,6 +1,6 @@
 import User from '../models/user'
 import bcrypto from 'bcryptjs'
-import { handleTokensIntoCookie } from '../helpers/createTokens'
+import { handleTokens } from '../helpers/createTokens'
 
 export const authController = async (req, res) => {
     const { email, password } = req.body
@@ -15,5 +15,5 @@ export const authController = async (req, res) => {
         return res.status(400).json({ message: 'Invalid credentials' })
     }
 
-    return handleTokensIntoCookie(res, user._id)
+    return handleTokens(res, user._id)
 }
