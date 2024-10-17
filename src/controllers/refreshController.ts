@@ -14,6 +14,7 @@ export const refreshController = async (req: Request, res: Response) => {
 
     try {
         const decoded = jwt.verify(refreshToken, config.JWT_REFRESH_SECRET) as JwtPayload
+        console.log(decoded, 'decoded')
         const newAccessToken = jwt.sign({ id: decoded.id }, config.JWT_SECRET, {
             expiresIn: config.JWT_EXPIRES_IN
         })

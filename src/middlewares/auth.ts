@@ -1,9 +1,10 @@
 import jwt from 'jsonwebtoken'
 import { config } from '../config'
-export const protect = (req, res, next) => {
+import { Request, Response, NextFunction } from 'express'
+export const protectedRoute = (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers['authorization']
     if (!authHeader) {
-        return res.status(400).json({ message: 'No token' })
+        return res.status(401).json({ message: 'No token' })
     }
     try {
         const token = authHeader.split(' ')[1]
