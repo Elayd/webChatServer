@@ -1,20 +1,35 @@
+import { handleTokens } from '../helpers/createTokens'
 import User from '../models/user'
 import bcrypt from 'bcryptjs'
+import { Request, Response } from 'express'
 
-export const registration = async (req, res) => {
+interface RegRequest extends Request {
+    body: {
+        email: string
+        password: string
+    }
+}
+
+export const registration = async (req: RegRequest, res: Response) => {
     const { email, password } = req.body
-    bcrypt.hash(password, 10).then((hash) => {
-        User.create({
-            email: email,
-            password: hash
+
+    const user = await User.findOne({ email })
+
+    if (!user) {
+        bcrypt.hash(password, 10).then((hash) => {
+            const user = User.create({
+                email: email,
+                password: hash,
+                typeAuth: 'common'
+            })
+                .then(() => {
+                    return handleTokens(res, user._id)
+                })
+                .catch((err) => {
+                    if (err) {
+                        res.status(400).json({ error: err })
+                    }
+                })
         })
-            .then(() => {
-                res.json('Success')
-            })
-            .catch((err) => {
-                if (err) {
-                    res.status(400).json({ error: err })
-                }
-            })
-    })
+    }
 }

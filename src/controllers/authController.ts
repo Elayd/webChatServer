@@ -1,19 +1,29 @@
 import User from '../models/user'
 import bcrypto from 'bcryptjs'
-import { handleTokensIntoCookie } from '../helpers/createTokens'
+import { handleTokens } from '../helpers/createTokens'
+import { Request, Response } from 'express'
 
-export const authController = async (req, res) => {
+interface AuthRequest extends Request {
+    body: {
+        email: string
+        password: string
+    }
+}
+export const authController = async (req: AuthRequest, res: Response) => {
     const { email, password } = req.body
-
     const user = await User.findOne({ email: email })
 
-    if (!user) return res.status(400).json({ error: "User Doesn't Exist" })
+    if (!user) return res.status(401).json({ error: "User Doesn't Exist" })
 
-    const matchedPassword = await bcrypto.compare(password, user?.password)
-
-    if (!user || !matchedPassword) {
+    if (!user.password) {
         return res.status(400).json({ message: 'Invalid credentials' })
     }
 
-    return handleTokensIntoCookie(res, user._id)
+    const matchedPassword = await bcrypto.compare(password, user.password)
+
+    if (!matchedPassword) {
+        return res.status(400).json({ message: 'Invalid credentials' })
+    }
+
+    return handleTokens(res, user._id)
 }

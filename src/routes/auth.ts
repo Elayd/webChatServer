@@ -3,26 +3,14 @@ import { authController } from '../controllers/authController'
 import { refreshController } from '../controllers/refreshController'
 import { registration } from '../controllers/regController'
 import { checkAuthController } from '../controllers/checkAuthController'
-import { protect } from '../middlewares/auth'
-import { logoutContoller } from '../controllers/logoutController'
-import { csrtController } from '../controllers/csrfController'
-import { csrfCheck } from '../middlewares/csrf'
+import { protectedRoute } from '../middlewares/auth'
 
 const securityRoute = express.Router()
-
-securityRoute.post('/csrf', csrtController)
 
 securityRoute.post('/auth', authController)
 securityRoute.post('/registration', registration)
 securityRoute.post('/refresh', refreshController)
-securityRoute.post('/logout', logoutContoller)
 
-securityRoute.use(protect)
-
-securityRoute.post('/checkAuth', checkAuthController)
-
-securityRoute.use(csrfCheck)
-
-securityRoute.post('/hello', (req, res) => res.status(200).json('right'))
+securityRoute.post('/checkAuth', protectedRoute, checkAuthController)
 
 export default securityRoute
