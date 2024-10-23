@@ -5,11 +5,11 @@ import jwt from 'jsonwebtoken'
 import axios from 'axios'
 import { handleTokens } from '../helpers/createTokens'
 import { Request, Response } from 'express'
+import { ErrorCodes } from '../enums/errorCodes'
 
 interface GoogleOAuthPayload {
     email: string
     name: string
-
     given_name: string
     family_name: string
     picture: string
@@ -50,7 +50,7 @@ export const tokenExchangeController = async (req: TokenExchangeRequest, res: Re
                 })
                 .catch((err) => {
                     if (err) {
-                        res.status(400).json({ error: err })
+                        res.status(500).json({ error: err, code: ErrorCodes.InternalServerError })
                     }
                 })
         } else {
@@ -58,6 +58,6 @@ export const tokenExchangeController = async (req: TokenExchangeRequest, res: Re
         }
     } catch (err) {
         console.error('Error: ', err)
-        res.status(400).json({ message: 'Bad request' })
+        res.status(400).json({ message: 'Bad request', code: ErrorCodes.BadRequest })
     }
 }

@@ -5,6 +5,7 @@ import { Request, Response } from 'express'
 import { UserRegistrationSchema } from '../schemas/registrationSchema'
 import { zodErrorsMapper } from '../helpers/zodErrorsMapper'
 import { z } from 'zod'
+import { ErrorCodes } from '../enums/errorCodes'
 
 interface RegRequest extends Request {
     body: {
@@ -21,6 +22,9 @@ export const registration = async (req: RegRequest, res: Response) => {
 
         const user = await User.findOne({ email: validatedData.email })
 
+        if (user) {
+            return res.status(400).json({ error: 'User already exists', code: ErrorCodes.UserAlreadyExists })
+        }
         if (!user) {
             bcrypt.hash(validatedData.password, 10).then((hash) => {
                 const user = User.create({
@@ -33,7 +37,7 @@ export const registration = async (req: RegRequest, res: Response) => {
                     })
                     .catch((err) => {
                         if (err) {
-                            res.status(400).json({ error: err })
+                            res.status(500).json({ error: err, code: ErrorCodes.InternalServerError })
                         }
                     })
             })
@@ -41,7 +45,7 @@ export const registration = async (req: RegRequest, res: Response) => {
     } catch (error) {
         if (error instanceof z.ZodError) {
             const errors = zodErrorsMapper<keyof RegRequest['body']>(error.formErrors.fieldErrors)
-            res.status(400).json({ errors })
+            res.status(400).json({ errors, code: ErrorCodes.InvalidRequest })
         }
     }
 }
