@@ -1,12 +1,11 @@
-import { config } from '../config'
 import { getTokenParams } from '../helpers/oauth'
 import User from '../models/user'
 import jwt from 'jsonwebtoken'
 import axios from 'axios'
-import { handleTokens } from '../helpers/createTokens'
+import { createTokens } from '../helpers/createTokens'
 import { Request, Response } from 'express'
 import { ErrorCodes } from '../enums/errorCodes'
-
+import { redisClient } from '../index'
 interface GoogleOAuthPayload {
     email: string
     name: string
@@ -27,7 +26,7 @@ export const tokenExchangeController = async (req: TokenExchangeRequest, res: Re
 
         const {
             data: { id_token }
-        } = await axios.post(`${config.tokenUrl}`, tokenParam)
+        } = await axios.post(`${process.env.TOKEN_URL}`, tokenParam)
 
         if (!id_token) return res.status(400).json({ message: 'Auth error' })
 
@@ -36,7 +35,7 @@ export const tokenExchangeController = async (req: TokenExchangeRequest, res: Re
         const user = await User.findOne({ email: email })
 
         if (!user) {
-            User.create({
+            const newUser = await User.create({
                 email: email,
                 typeAuth: 'google',
                 firstName: given_name,
@@ -44,17 +43,19 @@ export const tokenExchangeController = async (req: TokenExchangeRequest, res: Re
                 fullName: name,
                 picture: picture
             })
-                .then((user) => {
-                    console.log(user, 'user')
-                    handleTokens(res, user?._id)
-                })
-                .catch((err) => {
-                    if (err) {
-                        res.status(500).json({ error: err, code: ErrorCodes.InternalServerError })
-                    }
-                })
+            const { accessToken, refreshToken } = createTokens(newUser?._id)
+
+            const expiredIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN!, 10)
+            await redisClient.setEx(refreshToken, expiredIn, '1')
+
+            return res.status(200).json({ accessToken, refreshToken })
         } else {
-            handleTokens(res, user._id)
+            const { accessToken, refreshToken } = createTokens(user?._id)
+
+            const expiredIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN!, 10)
+            await redisClient.setEx(refreshToken, expiredIn, '1')
+
+            return res.status(200).json({ accessToken, refreshToken })
         }
     } catch (err) {
         console.error('Error: ', err)

@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+    redis:
+        image: redis
+        container_name: cache
+        expose:
+            - 6379
+
+    mongodb:
+        image: mongo
+        container_name: mongodb
+        expose:
+            - 27017
+
+    app:
+        build: ./
+        volumes:
+            - ./:/usr/src/app
+            - /usr/src/app/node_modules
+        depends_on:
+            - redis
+            - mongodb
+        ports:
+            - 8000:8000
+        environment:
+            - ORIGIN=${ORIGIN}
+            - PORT=${PORT}
+            - JWT_SECRET=${JWT_SECRET}
+            - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+            - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+            - JWT_REFRESH_EXPIRES_IN=${JWT_REFRESH_EXPIRES_IN}
+            - MONGODB_URI=${MONGODB_URI}
+            - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+            - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+            - AUTH_URL=${AUTH_URL}
+            - TOKEN_URL=${TOKEN_URL}
+            - REDIRECT_URI=${REDIRECT_URI}
+            - NODE_ENV=${NODE_ENV}
+            - REDIS_URL=${REDIS_URL}

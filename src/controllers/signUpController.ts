@@ -1,4 +1,3 @@
-import { handleTokens } from '../helpers/createTokens'
 import User from '../models/user'
 import bcrypt from 'bcryptjs'
 import { Request, Response } from 'express'
@@ -6,6 +5,8 @@ import { UserRegistrationSchema } from '../schemas/registrationSchema'
 import { zodErrorsMapper } from '../helpers/zodErrorsMapper'
 import { z } from 'zod'
 import { ErrorCodes } from '../enums/errorCodes'
+import { redisClient } from '../index'
+import { createTokens } from '../helpers/createTokens'
 
 interface RegRequest extends Request {
     body: {
@@ -14,7 +15,7 @@ interface RegRequest extends Request {
     }
 }
 
-export const registration = async (req: RegRequest, res: Response) => {
+export const signUpController = async (req: RegRequest, res: Response) => {
     const { email, password } = req.body
 
     try {
@@ -25,24 +26,22 @@ export const registration = async (req: RegRequest, res: Response) => {
         if (user) {
             return res.status(400).json({ error: 'User already exists', code: ErrorCodes.UserAlreadyExists })
         }
-        if (!user) {
-            bcrypt.hash(validatedData.password, 10).then((hash) => {
-                const user = User.create({
-                    email: validatedData.email,
-                    password: hash,
-                    typeAuth: 'common'
-                })
-                    .then(() => {
-                        return handleTokens(res, user._id)
-                    })
-                    .catch((err) => {
-                        if (err) {
-                            res.status(500).json({ error: err, code: ErrorCodes.InternalServerError })
-                        }
-                    })
-            })
-        }
+
+        const hashedPassword = await bcrypt.hash(validatedData.password, 10)
+        const newUser = await User.create({
+            email: validatedData.email,
+            password: hashedPassword,
+            typeAuth: 'common'
+        })
+
+        const { accessToken, refreshToken } = createTokens(newUser?._id)
+
+        const expiredIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN!, 10)
+        await redisClient.setEx(refreshToken, expiredIn, 'true')
+
+        return res.status(200).json({ accessToken, refreshToken })
     } catch (error) {
+        // Обработать другие ошибки
         if (error instanceof z.ZodError) {
             const errors = zodErrorsMapper<keyof RegRequest['body']>(error.formErrors.fieldErrors)
             res.status(400).json({ errors, code: ErrorCodes.InvalidRequest })

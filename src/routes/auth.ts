@@ -1,15 +1,17 @@
 import express from 'express'
-import { authController } from '../controllers/authController'
-import { refreshController } from '../controllers/refreshController'
-import { registration } from '../controllers/regController'
+import { refreshTokenController } from '../controllers/refreshTokenController'
 import { checkAuthController } from '../controllers/checkAuthController'
 import { protectedRoute } from '../middlewares/auth'
+import { logoutController } from '../controllers/logoutController'
+import { signInController } from '../controllers/SignInController'
+import { signUpController } from '../controllers/signUpController'
 
 const securityRoute = express.Router()
 
-securityRoute.post('/auth', authController)
-securityRoute.post('/registration', registration)
-securityRoute.post('/refresh', refreshController)
+securityRoute.post('/signin', signInController)
+securityRoute.post('/signup', signUpController)
+securityRoute.post('/refresh', refreshTokenController)
+securityRoute.post('/logout', logoutController)
 
 securityRoute.post('/checkAuth', protectedRoute, checkAuthController)
 
