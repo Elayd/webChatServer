@@ -7,6 +7,13 @@ services:
         expose:
             - 6379
 
+    redis-insight:
+        image: redis/redisinsight:latest
+        ports:
+            - 5540:5540
+        depends_on:
+            - redis
+
     mongodb:
         image: mongo
         container_name: mongodb
