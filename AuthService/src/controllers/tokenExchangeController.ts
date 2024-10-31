@@ -20,7 +20,6 @@ interface TokenExchangeRequest extends Request {
 }
 export const tokenExchangeController = async (req: TokenExchangeRequest, res: Response) => {
     const { code } = req.query
-    if (!code) return res.status(400).json({ message: 'Authorization code must be provided' })
     try {
         const tokenParam = getTokenParams(code)
 
@@ -46,15 +45,17 @@ export const tokenExchangeController = async (req: TokenExchangeRequest, res: Re
             const { accessToken, refreshToken } = createTokens(newUser?._id)
 
             const expiredIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN!, 10)
+            await redisClient.connect()
             await redisClient.setEx(refreshToken, expiredIn, '1')
+            await redisClient.disconnect()
 
             return res.status(200).json({ accessToken, refreshToken })
         } else {
             const { accessToken, refreshToken } = createTokens(user?._id)
-
             const expiredIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN!, 10)
+            await redisClient.connect()
             await redisClient.setEx(refreshToken, expiredIn, '1')
-
+            await redisClient.disconnect()
             return res.status(200).json({ accessToken, refreshToken })
         }
     } catch (err) {

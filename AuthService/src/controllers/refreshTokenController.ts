@@ -9,11 +9,10 @@ interface JwtPayload {
 
 export const refreshTokenController = async (req: Request, res: Response) => {
     const { refreshToken } = req.body
-    if (!refreshToken) {
-        return res.status(400).json({ message: 'No refresh token', code: ErrorCodes.InvalidToken })
-    }
 
+    await redisClient.connect()
     const isRefreshInRedis = await redisClient.exists(refreshToken)
+    await redisClient.disconnect()
 
     if (!isRefreshInRedis) {
         return res.status(400).json({ message: 'Invalid Token', code: ErrorCodes.InvalidToken })
@@ -22,7 +21,7 @@ export const refreshTokenController = async (req: Request, res: Response) => {
     try {
         const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as JwtPayload
 
-        const newAccessToken = jwt.sign({ id: decoded.id }, process.env.JWT_SECRET!, {
+        const newAccessToken = jwt.sign({ id: decoded.id }, process.env.JWT_PRIVATE_KEY!, {
             expiresIn: process.env.JWT_EXPIRES_IN
         })
 

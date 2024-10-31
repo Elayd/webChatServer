@@ -2,9 +2,10 @@ import jwt from 'jsonwebtoken'
 import { ObjectId } from 'mongodb'
 
 export const createTokens = (userId: ObjectId) => {
-    const accessToken = jwt.sign({ id: userId }, process.env.JWT_SECRET!, {
+    const accessToken = jwt.sign({ id: userId }, process.env.JWT_PRIVATE_KEY!, {
         expiresIn: process.env.JWT_EXPIRES_IN
     })
+
     const refreshToken = jwt.sign({ id: userId }, process.env.JWT_REFRESH_SECRET!, {
         expiresIn: process.env.JWT_REFRESH_EXPIRES_IN
     })

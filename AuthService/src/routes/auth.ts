@@ -3,8 +3,8 @@ import { refreshTokenController } from '../controllers/refreshTokenController'
 import { checkAuthController } from '../controllers/checkAuthController'
 import { protectedRoute } from '../middlewares/auth'
 import { logoutController } from '../controllers/logoutController'
-import { signInController } from '../controllers/SignInController'
 import { signUpController } from '../controllers/signUpController'
+import { signInController } from '../controllers/signInController'
 
 const securityRoute = express.Router()
 
