@@ -4,8 +4,8 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import securityRoute from './routes/auth'
 import oAuthRoute from './routes/oauth'
-import redis from 'redis'
 import dotenv from 'dotenv'
+import RedisClient from './helpers/redisClient'
 
 dotenv.config()
 
@@ -24,11 +24,7 @@ mongoose
     .then(() => console.log('Connected to MongoDB'))
     .catch((err) => console.error('MongoDB connection error:', err))
 
-export const redisClient = redis.createClient({ url: process.env.REDIS_URL })
-
-redisClient.on('error', (err) => {
-    console.error('Redis error:', err)
-})
+export const redisClient = new RedisClient(process.env.REDIS_URL!)
 
 app.use(express.json())
 

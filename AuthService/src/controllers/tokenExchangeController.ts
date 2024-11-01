@@ -45,17 +45,13 @@ export const tokenExchangeController = async (req: TokenExchangeRequest, res: Re
             const { accessToken, refreshToken } = createTokens(newUser?._id)
 
             const expiredIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN!, 10)
-            await redisClient.connect()
-            await redisClient.setEx(refreshToken, expiredIn, '1')
-            await redisClient.disconnect()
+            await redisClient.setToken(newUser?._id.toString(), refreshToken, expiredIn)
 
             return res.status(200).json({ accessToken, refreshToken })
         } else {
             const { accessToken, refreshToken } = createTokens(user?._id)
             const expiredIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN!, 10)
-            await redisClient.connect()
-            await redisClient.setEx(refreshToken, expiredIn, '1')
-            await redisClient.disconnect()
+            await redisClient.setToken(user?._id.toString(), refreshToken, expiredIn)
             return res.status(200).json({ accessToken, refreshToken })
         }
     } catch (err) {

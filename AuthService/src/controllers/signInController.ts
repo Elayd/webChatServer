@@ -33,9 +33,7 @@ export const signInController = async (req: AuthRequest, res: Response) => {
 
         const expiredIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN!, 10)
 
-        await redisClient.connect()
-        await redisClient.setEx(refreshToken, expiredIn, '1')
-        await redisClient.disconnect()
+        await redisClient.setToken(user?._id.toString(), refreshToken, expiredIn)
 
         return res.status(200).json({ accessToken, refreshToken })
     } catch {
