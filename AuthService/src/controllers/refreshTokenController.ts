@@ -2,6 +2,8 @@ import jwt from 'jsonwebtoken'
 import { Request, Response } from 'express'
 import { ErrorCodes } from '../enums/errorCodes'
 import { redisClient } from '../index'
+import fs from 'fs'
+import path from 'path'
 
 interface JwtPayload {
     id: string
@@ -20,9 +22,10 @@ export const refreshTokenController = async (req: Request, res: Response) => {
 
     try {
         const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as JwtPayload
-
-        const newAccessToken = jwt.sign({ id: decoded.id }, process.env.JWT_PRIVATE_KEY!, {
-            expiresIn: process.env.JWT_EXPIRES_IN
+        const privateKEY = fs.readFileSync(path.resolve('private.key'), 'utf8')
+        const newAccessToken = jwt.sign({ id: decoded.id }, privateKEY, {
+            expiresIn: process.env.JWT_EXPIRES_IN,
+            algorithm: 'RS256'
         })
 
         res.status(200).json(newAccessToken)
