@@ -3,9 +3,10 @@ import User from '../models/user'
 import jwt from 'jsonwebtoken'
 import axios from 'axios'
 import { createTokens } from '../helpers/createTokens'
-import { Request, Response } from 'express'
-import { ErrorCodes } from '../enums/errorCodes'
+import { NextFunction, Request, Response } from 'express'
 import { redisClient } from '../index'
+import { AppError } from '../helpers/errorHandler'
+import HttpStatusCode from '../enums/httpStatusCodes'
 interface GoogleOAuthPayload {
     email: string
     name: string
@@ -18,7 +19,7 @@ interface TokenExchangeRequest extends Request {
         code: string
     }
 }
-export const tokenExchangeController = async (req: TokenExchangeRequest, res: Response) => {
+export const tokenExchangeController = async (req: TokenExchangeRequest, res: Response, next: NextFunction) => {
     const { code } = req.query
     try {
         const tokenParam = getTokenParams(code)
@@ -27,7 +28,16 @@ export const tokenExchangeController = async (req: TokenExchangeRequest, res: Re
             data: { id_token }
         } = await axios.post(`${process.env.TOKEN_URL}`, tokenParam)
 
-        if (!id_token) return res.status(400).json({ message: 'Auth error' })
+        if (!id_token)
+            return next(
+                new AppError(
+                    'BAD_REQUEST',
+                    HttpStatusCode.BAD_REQUEST,
+                    'Token exchange error',
+                    HttpStatusCode.BAD_REQUEST,
+                    true
+                )
+            )
 
         const { email, given_name, family_name, name, picture } = jwt.decode(id_token) as GoogleOAuthPayload
 
@@ -47,15 +57,22 @@ export const tokenExchangeController = async (req: TokenExchangeRequest, res: Re
             const expiredIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN!, 10)
             await redisClient.setToken(newUser?._id.toString(), refreshToken, expiredIn)
 
-            return res.status(200).json({ accessToken, refreshToken })
+            return res.status(HttpStatusCode.OK).json({ accessToken, refreshToken })
         } else {
             const { accessToken, refreshToken } = createTokens(user?._id)
             const expiredIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN!, 10)
             await redisClient.setToken(user?._id.toString(), refreshToken, expiredIn)
-            return res.status(200).json({ accessToken, refreshToken })
+            return res.status(HttpStatusCode.OK).json({ accessToken, refreshToken })
         }
-    } catch (err) {
-        console.error('Error: ', err)
-        res.status(400).json({ message: 'Bad request', code: ErrorCodes.BadRequest })
+    } catch {
+        return next(
+            new AppError(
+                'INTERNAL_SERVER_ERROR',
+                HttpStatusCode.INTERNAL_SERVER_ERROR,
+                'Internal server error',
+                HttpStatusCode.INTERNAL_SERVER_ERROR,
+                true
+            )
+        )
     }
 }

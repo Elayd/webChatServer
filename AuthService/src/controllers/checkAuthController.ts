@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
+import HttpStatusCode from '../enums/httpStatusCodes'
 
 // Унесу в UserService + BFF
 export const checkAuthController = (req: Request, res: Response) => {
-    res.status(200).json({ auth: true })
+    res.status(HttpStatusCode.OK).json({ auth: true })
 }

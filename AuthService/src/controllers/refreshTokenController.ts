@@ -1,15 +1,16 @@
 import jwt from 'jsonwebtoken'
-import { Request, Response } from 'express'
-import { ErrorCodes } from '../enums/errorCodes'
+import { NextFunction, Request, Response } from 'express'
 import { redisClient } from '../index'
 import fs from 'fs'
 import path from 'path'
+import { AppError } from '../helpers/errorHandler'
+import HttpStatusCode from '../enums/httpStatusCodes'
 
 interface JwtPayload {
     id: string
 }
 
-export const refreshTokenController = async (req: Request, res: Response) => {
+export const refreshTokenController = async (req: Request, res: Response, next: NextFunction) => {
     const { refreshToken } = req.body
 
     try {
@@ -17,7 +18,9 @@ export const refreshTokenController = async (req: Request, res: Response) => {
         const isRefreshInRedis = await redisClient.tokenExist(decoded.id.toString(), refreshToken)
 
         if (!isRefreshInRedis) {
-            return res.status(400).json({ message: 'Invalid Token', code: ErrorCodes.InvalidToken })
+            return next(
+                new AppError('Forbidden', HttpStatusCode.FORBIDDEN, 'Access Forbidden', HttpStatusCode.FORBIDDEN, true)
+            )
         }
 
         const privateKEY = fs.readFileSync(path.resolve('private.key'), 'utf8')
@@ -26,8 +29,10 @@ export const refreshTokenController = async (req: Request, res: Response) => {
             algorithm: 'RS256'
         })
 
-        res.status(200).json(newAccessToken)
+        res.status(HttpStatusCode.OK).json(newAccessToken)
     } catch {
-        res.status(401).json({ message: 'Failed', code: ErrorCodes.InvalidToken })
+        return next(
+            new AppError('UNAUTHORIZED', HttpStatusCode.UNAUTHORIZED, 'UNAUTHORIZED', HttpStatusCode.FORBIDDEN, true)
+        )
     }
 }

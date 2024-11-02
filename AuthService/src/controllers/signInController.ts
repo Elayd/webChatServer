@@ -1,9 +1,11 @@
 import User from '../models/user'
 import bcrypto from 'bcryptjs'
-import { Request, Response } from 'express'
-import { ErrorCodes } from '../enums/errorCodes'
+import { NextFunction, Request, Response } from 'express'
 import { redisClient } from '../index'
 import { createTokens } from '../helpers/createTokens'
+import { AppError } from '../helpers/errorHandler'
+import HttpStatusCode from '../enums/httpStatusCodes'
+import { CustomErrorCodes } from '../enums/customErrorCodes'
 
 interface AuthRequest extends Request {
     body: {
@@ -11,22 +13,48 @@ interface AuthRequest extends Request {
         password: string
     }
 }
-export const signInController = async (req: AuthRequest, res: Response) => {
+export const signInController = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const { email, password } = req.body
 
     try {
         const user = await User.findOne({ email })
 
-        if (!user) return res.status(401).json({ error: "User Doesn't Exist", code: ErrorCodes.UserNotFound })
+        if (!user) {
+            return next(
+                new AppError(
+                    'UNAUTHORIZED',
+                    HttpStatusCode.UNAUTHORIZED,
+                    'User does not exist',
+                    CustomErrorCodes.USER_NOT_FOUND,
+                    true
+                )
+            )
+        }
 
         if (!user.password) {
-            return res.status(400).json({ message: 'Invalid credentials', code: ErrorCodes.InvalidCredentials })
+            return next(
+                new AppError(
+                    'BAD_REQUEST',
+                    HttpStatusCode.BAD_REQUEST,
+                    'Invalid credentials',
+                    HttpStatusCode.BAD_REQUEST,
+                    true
+                )
+            )
         }
 
         const matchedPassword = await bcrypto.compare(password, user.password)
 
         if (!matchedPassword) {
-            return res.status(400).json({ message: 'Invalid credentials', code: ErrorCodes.InvalidCredentials })
+            return next(
+                new AppError(
+                    'BAD_REQUEST',
+                    HttpStatusCode.BAD_REQUEST,
+                    'Invalid credentials',
+                    CustomErrorCodes.USER_INVALID_CREDENTIALS,
+                    true
+                )
+            )
         }
 
         const { accessToken, refreshToken } = createTokens(user?._id)
@@ -35,9 +63,16 @@ export const signInController = async (req: AuthRequest, res: Response) => {
 
         await redisClient.setToken(user?._id.toString(), refreshToken, expiredIn)
 
-        return res.status(200).json({ accessToken, refreshToken })
+        return res.status(HttpStatusCode.OK).json({ accessToken, refreshToken })
     } catch {
-        // Сделаю норм обработку
-        res.status(500).json('Internal server error')
+        return next(
+            new AppError(
+                'INTERNAL_SERVER_ERROR',
+                HttpStatusCode.INTERNAL_SERVER_ERROR,
+                'Internal server error',
+                HttpStatusCode.INTERNAL_SERVER_ERROR,
+                true
+            )
+        )
     }
 }

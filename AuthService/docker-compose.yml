@@ -46,3 +46,4 @@ services:
             - REDIRECT_URI=${REDIRECT_URI}
             - NODE_ENV=${NODE_ENV}
             - REDIS_URL=${REDIS_URL}
+            - SENTRY_DSN=${SENTRY_DSN}

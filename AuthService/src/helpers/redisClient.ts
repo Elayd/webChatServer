@@ -30,9 +30,7 @@ export class RedisClient {
     }
 
     async setToken(userId: string, token: string, expiredIn: number): Promise<void> {
-        console.log(userId, 'userId')
         const key = `${userId}:${token}`
-        console.log(key, 'key')
         await this.client.connect()
         await this.client.set(key, process.env.JWT_REFRESH_EXPIRES_IN!, 'EX', expiredIn)
         this.client.disconnect()
