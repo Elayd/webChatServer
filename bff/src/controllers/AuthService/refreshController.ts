@@ -1,14 +1,18 @@
+import { NextFunction } from '@sentry/node/build/types/integrations/tracing/nest/types'
 import axios from 'axios'
 import { Request, Response } from 'express'
+import { AppError } from '../../helpers/errorHandler'
+import HttpStatusCode from '../../enums/httpStatusCodes'
+import { ErrorsDescriptions } from '../../enums/errorsDescriptions'
 
 interface RefreshResponse extends Response {
     accessToken: string
 }
-export const refreshTokenController = async (req: Request, res: Response) => {
+export const refreshTokenController = async (req: Request, res: Response, next: NextFunction) => {
     const { refreshToken } = req.body
 
     if (!refreshToken) {
-        return res.status(400).json({ message: 'No refresh token provided' })
+        return next(new AppError(ErrorsDescriptions.NO_REFRESH_TOKEN_ERROR, true, null, HttpStatusCode.BAD_REQUEST))
     }
 
     try {
@@ -18,12 +22,8 @@ export const refreshTokenController = async (req: Request, res: Response) => {
                 refreshToken
             }
         )
-        res.status(200).json(newAccessToken)
+        res.status(HttpStatusCode.OK).json(newAccessToken)
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            const status = error.response?.status || 500
-            const errorRes = error.response?.data || 'An error occurred'
-            return res.status(status).json(errorRes)
-        }
+        return next(new AppError(ErrorsDescriptions.REFRESH_TOKEN_PROBLEM, true, error))
     }
 }

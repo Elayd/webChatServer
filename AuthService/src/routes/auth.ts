@@ -14,7 +14,9 @@ securityRoute.post('/signup', signUpController)
 securityRoute.post('/refresh', refreshTokenController)
 securityRoute.post('/logout', logoutController)
 securityRoute.post('/logoutOtherDevices', logoutAllController)
+// changePassword
 
+// Удалится
 securityRoute.post('/checkAuth', protectedRoute, checkAuthController)
 
 export default securityRoute

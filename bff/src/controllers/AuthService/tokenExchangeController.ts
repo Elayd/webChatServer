@@ -1,5 +1,9 @@
+import { NextFunction } from '@sentry/node/build/types/integrations/tracing/nest/types'
 import axios from 'axios'
 import { Request, Response } from 'express'
+import { AppError } from '../../helpers/errorHandler'
+import HttpStatusCode from '../../enums/httpStatusCodes'
+import { ErrorsDescriptions } from '../../enums/errorsDescriptions'
 
 interface TokenExchangeRequest extends Request {
     query: {
@@ -11,21 +15,18 @@ interface TokenExchangeResponse extends Response {
     refreshToken: string
 }
 
-export const tokenExchangeController = async (req: TokenExchangeRequest, res: Response) => {
+export const tokenExchangeController = async (req: TokenExchangeRequest, res: Response, next: NextFunction) => {
     try {
         const { code } = req.query
-        if (!code) return res.status(400).json({ message: 'Authorization code must be provided' })
+        if (!code) {
+            return next(new AppError(ErrorsDescriptions.NO_GOOGLE_CODE_ERROR, true, null, HttpStatusCode.BAD_REQUEST))
+        }
         const { data } = await axios.get<TokenExchangeResponse>(
             `${process.env.AUTH_SERVICE_BASE_URL}/api/oauth/token?code=${code}`
         )
         const { accessToken, refreshToken } = data
-        res.status(200).json({ accessToken, refreshToken })
+        res.status(HttpStatusCode.OK).json({ accessToken, refreshToken })
     } catch (error) {
-        console.log(error, 'error')
-        if (axios.isAxiosError(error)) {
-            const status = error.response?.status || 500
-            const errorRes = error.response?.data || 'An error occurred'
-            return res.status(status).json(errorRes)
-        }
+        return next(new AppError(ErrorsDescriptions.TOKEN_EXCHANGE_ERROR, true, error))
     }
 }

@@ -1,8 +1,10 @@
-import { z } from 'zod'
 import { Request, Response } from 'express'
 import axios from 'axios'
-import { UserAuthSchema } from '../../schemas/authSchema'
-import { zodErrorsMapper } from '../../helpers/zodErrorsMapper'
+import { NextFunction } from '@sentry/node/build/types/integrations/tracing/nest/types'
+import { AppError } from '../../helpers/errorHandler'
+import { UserAuthSchema } from '../../schemas/userAuthSchema'
+import HttpStatusCode from '../../enums/httpStatusCodes'
+import { ErrorsDescriptions } from '../../enums/errorsDescriptions'
 
 interface SignUpRequest extends Request {
     body: {
@@ -16,7 +18,7 @@ interface SignUpResponse extends Response {
     refreshToken: string
 }
 
-export const signUpController = async (req: SignUpRequest, res: Response) => {
+export const signUpController = async (req: SignUpRequest, res: Response, next: NextFunction) => {
     const { email, password } = req.body
 
     try {
@@ -27,17 +29,8 @@ export const signUpController = async (req: SignUpRequest, res: Response) => {
             validatedData
         )
         const { accessToken, refreshToken } = data
-        res.status(200).json({ accessToken, refreshToken })
+        res.status(HttpStatusCode.OK).json({ accessToken, refreshToken })
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            const status = error.response?.status || 500
-            const errorRes = error.response?.data || 'An error occurred'
-            return res.status(status).json(errorRes)
-        }
-
-        if (error instanceof z.ZodError) {
-            const errors = zodErrorsMapper<keyof SignUpRequest['body']>(error.formErrors.fieldErrors)
-            res.status(400).json({ errors })
-        }
+        return next(new AppError(ErrorsDescriptions.SIGNUP_ERROR, true, error))
     }
 }
