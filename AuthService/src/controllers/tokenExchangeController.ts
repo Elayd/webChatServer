@@ -1,5 +1,4 @@
 import { getTokenParams } from '../helpers/oauth'
-import User from '../models/user'
 import jwt from 'jsonwebtoken'
 import axios from 'axios'
 import { createTokens } from '../helpers/createTokens'
@@ -7,6 +6,8 @@ import { NextFunction, Request, Response } from 'express'
 import { redisClient } from '../index'
 import { AppError } from '../helpers/errorHandler'
 import HttpStatusCode from '../enums/httpStatusCodes'
+import { getUserByEmail } from '../api/getUserByEmail'
+import { createUser } from '../api/createUser'
 interface GoogleOAuthPayload {
     email: string
     name: string
@@ -41,10 +42,10 @@ export const tokenExchangeController = async (req: TokenExchangeRequest, res: Re
 
         const { email, given_name, family_name, name, picture } = jwt.decode(id_token) as GoogleOAuthPayload
 
-        let user = await User.findOne({ email: email })
+        let user = await getUserByEmail(email)
 
         if (!user) {
-            user = await User.create({
+            user = await createUser({
                 email: email,
                 typeAuth: 'google',
                 firstName: given_name,

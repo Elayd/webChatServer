@@ -1,4 +1,3 @@
-import User from '../models/user'
 import bcrypt from 'bcryptjs'
 import { NextFunction, Request, Response } from 'express'
 import { redisClient } from '../index'
@@ -6,6 +5,8 @@ import { createTokens } from '../helpers/createTokens'
 import HttpStatusCode from '../enums/httpStatusCodes'
 import { AppError } from '../helpers/errorHandler'
 import { CustomErrorCodes } from '../enums/customErrorCodes'
+import { getUserByEmail } from '../api/getUserByEmail'
+import { createUser } from '../api/createUser'
 
 interface RegRequest extends Request {
     body: {
@@ -18,7 +19,7 @@ export const signUpController = async (req: RegRequest, res: Response, next: Nex
     const { email, password } = req.body
 
     try {
-        const user = await User.findOne({ email })
+        const user = await getUserByEmail(email)
 
         if (user) {
             return next(
@@ -33,8 +34,9 @@ export const signUpController = async (req: RegRequest, res: Response, next: Nex
         }
 
         const hashedPassword = await bcrypt.hash(password, 10)
-        const newUser = await User.create({
-            email: email,
+
+        const newUser = await createUser({
+            email,
             password: hashedPassword,
             typeAuth: 'common'
         })

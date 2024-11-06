@@ -1,4 +1,3 @@
-import User from '../models/user'
 import bcrypto from 'bcryptjs'
 import { NextFunction, Request, Response } from 'express'
 import { redisClient } from '../index'
@@ -6,6 +5,7 @@ import { createTokens } from '../helpers/createTokens'
 import { AppError } from '../helpers/errorHandler'
 import HttpStatusCode from '../enums/httpStatusCodes'
 import { CustomErrorCodes } from '../enums/customErrorCodes'
+import { getUserByEmail } from '../api/getUserByEmail'
 
 interface AuthRequest extends Request {
     body: {
@@ -17,7 +17,19 @@ export const signInController = async (req: AuthRequest, res: Response, next: Ne
     const { email, password } = req.body
 
     try {
-        const user = await User.findOne({ email })
+        const user = await getUserByEmail(email)
+
+        if (user.typeAuth !== 'common') {
+            return next(
+                new AppError(
+                    'BAD_REQUEST',
+                    HttpStatusCode.BAD_REQUEST,
+                    'Invalid credentials',
+                    HttpStatusCode.BAD_REQUEST,
+                    true
+                )
+            )
+        }
 
         if (!user) {
             return next(
@@ -26,18 +38,6 @@ export const signInController = async (req: AuthRequest, res: Response, next: Ne
                     HttpStatusCode.UNAUTHORIZED,
                     'User does not exist',
                     CustomErrorCodes.USER_NOT_FOUND,
-                    true
-                )
-            )
-        }
-
-        if (!user.password) {
-            return next(
-                new AppError(
-                    'BAD_REQUEST',
-                    HttpStatusCode.BAD_REQUEST,
-                    'Invalid credentials',
-                    HttpStatusCode.BAD_REQUEST,
                     true
                 )
             )

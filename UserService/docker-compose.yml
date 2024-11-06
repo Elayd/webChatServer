@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+    mongodb:
+        image: mongo
+        container_name: mongodb
+        expose:
+            - 27017
+
+    app:
+        build: ./
+        container_name: user
+        volumes:
+            - ./:/usr/src/app
+            - /usr/src/app/node_modules
+        depends_on:
+            - mongodb
+        ports:
+            - 8013:8013
+        networks:
+            - mynetwork
+        environment:
+            - ORIGIN=${ORIGIN}
+            - PORT=${PORT}
+            - MONGODB_URI=${MONGODB_URI}
+            - AUTH_URL=${AUTH_URL}
+            - NODE_ENV=${NODE_ENV}
+            - SENTRY_DSN=${SENTRY_DSN}
+networks:
+    mynetwork:
+        name: mynetwork

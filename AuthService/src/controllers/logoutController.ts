@@ -15,8 +15,7 @@ export const logoutController = async (req: Request, res: Response, next: NextFu
         const decoded = jwt.decode(refreshToken) as JwtPayload
         await redisClient.deleteToken(decoded.id.toString(), refreshToken)
         res.status(HttpStatusCode.OK).json({ message: 'Successfully logged out' })
-    } catch (error) {
-        console.log(error, 'error')
+    } catch {
         return next(
             new AppError(
                 'INTERNAL_SERVER_ERROR',
