@@ -19,18 +19,6 @@ export const signInController = async (req: AuthRequest, res: Response, next: Ne
     try {
         const user = await getUserByEmail(email)
 
-        if (user.typeAuth !== 'common') {
-            return next(
-                new AppError(
-                    'BAD_REQUEST',
-                    HttpStatusCode.BAD_REQUEST,
-                    'Invalid credentials',
-                    HttpStatusCode.BAD_REQUEST,
-                    true
-                )
-            )
-        }
-
         if (!user) {
             return next(
                 new AppError(
@@ -38,6 +26,18 @@ export const signInController = async (req: AuthRequest, res: Response, next: Ne
                     HttpStatusCode.UNAUTHORIZED,
                     'User does not exist',
                     CustomErrorCodes.USER_NOT_FOUND,
+                    true
+                )
+            )
+        }
+
+        if (user.typeAuth !== 'common') {
+            return next(
+                new AppError(
+                    'BAD_REQUEST',
+                    HttpStatusCode.BAD_REQUEST,
+                    'Invalid credentials',
+                    HttpStatusCode.BAD_REQUEST,
                     true
                 )
             )

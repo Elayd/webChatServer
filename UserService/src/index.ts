@@ -3,7 +3,8 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
 import mongoose from 'mongoose'
-import userRoute from './routes/user'
+import serverSideUser from './routes/serverSideUser'
+import clientSideUser from './routes/clientSideUser'
 
 dotenv.config()
 
@@ -26,7 +27,10 @@ app.use(express.json())
 
 app.use(cookieParser())
 
-app.use('/api/user/', userRoute)
+// закрою из вне
+app.use('/api/serverside/user/', serverSideUser)
+
+app.use('/api/user/', clientSideUser)
 
 app.listen(process.env.PORT, () => {
     console.log(`RUNNING PORT ${process.env.PORT}`)

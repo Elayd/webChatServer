@@ -1,7 +1,5 @@
-import { Request, Response } from 'express'
-
+import { NextFunction, Request, Response } from 'express'
 import axios from 'axios'
-import { NextFunction } from '@sentry/node/build/types/integrations/tracing/nest/types'
 import { AppError } from '../../helpers/errorHandler'
 import { UserAuthSchema } from '../../schemas/userAuthSchema'
 import HttpStatusCode from '../../enums/httpStatusCodes'
@@ -29,6 +27,7 @@ export const signInController = async (req: SignInRequest, res: Response, next: 
         const { accessToken, refreshToken } = data
         res.status(HttpStatusCode.OK).json({ accessToken, refreshToken })
     } catch (error) {
+        console.log(error, 'error')
         return next(new AppError(ErrorsDescriptions.SIGNIN_ERROR, true, error))
     }
 }

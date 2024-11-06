@@ -10,6 +10,7 @@ interface GetUserByEmailRequest extends Request {
 export const getUserByEmailController = async (req: GetUserByEmailRequest, res: Response) => {
     const { email } = req.body
 
+    console.log(email, 'email')
     try {
         const user = await User.findOne({ email })
         res.status(200).json(user)

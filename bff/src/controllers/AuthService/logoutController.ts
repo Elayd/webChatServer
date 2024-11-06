@@ -1,6 +1,5 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import axios from 'axios'
-import { NextFunction } from '@sentry/node/build/types/integrations/tracing/nest/types'
 import { AppError } from '../../helpers/errorHandler'
 import HttpStatusCode from '../../enums/httpStatusCodes'
 import { ErrorsDescriptions } from '../../enums/errorsDescriptions'
