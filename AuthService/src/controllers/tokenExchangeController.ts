@@ -41,10 +41,10 @@ export const tokenExchangeController = async (req: TokenExchangeRequest, res: Re
 
         const { email, given_name, family_name, name, picture } = jwt.decode(id_token) as GoogleOAuthPayload
 
-        const user = await User.findOne({ email: email })
+        let user = await User.findOne({ email: email })
 
         if (!user) {
-            const newUser = await User.create({
+            user = await User.create({
                 email: email,
                 typeAuth: 'google',
                 firstName: given_name,
@@ -52,19 +52,14 @@ export const tokenExchangeController = async (req: TokenExchangeRequest, res: Re
                 fullName: name,
                 picture: picture
             })
-            const { accessToken, refreshToken } = createTokens(newUser?._id)
-
-            const expiredIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN!, 10)
-            await redisClient.setToken(newUser?._id.toString(), refreshToken, expiredIn)
-
-            return res.status(HttpStatusCode.OK).json({ accessToken, refreshToken })
-        } else {
-            const { accessToken, refreshToken } = createTokens(user?._id)
-            const expiredIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN!, 10)
-            await redisClient.setToken(user?._id.toString(), refreshToken, expiredIn)
-
-            return res.status(HttpStatusCode.OK).json({ accessToken, refreshToken })
         }
+
+        const { accessToken, refreshToken } = createTokens(user?._id)
+
+        const expiredIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN!, 10)
+        await redisClient.setToken(user?._id.toString(), refreshToken, expiredIn)
+
+        return res.status(HttpStatusCode.OK).json({ accessToken, refreshToken })
     } catch {
         return next(
             new AppError(
