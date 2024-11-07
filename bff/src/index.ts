@@ -3,9 +3,10 @@ import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
-import apiRoute from './routes/auth'
+import authRoute from './routes/auth'
 import { handler } from './helpers/errorHandler'
 import { Response, Request, NextFunction } from 'express'
+import userRoute from './routes/user'
 
 dotenv.config()
 
@@ -23,7 +24,8 @@ app.use(express.json())
 
 app.use(cookieParser())
 
-app.use(`/api/v${process.env.API_VERSION}/`, apiRoute)
+app.use(`/api/v${process.env.API_VERSION}/auth`, authRoute)
+app.use(`/api/v${process.env.API_VERSION}/user`, userRoute)
 
 app.use(async (err: Error, req: Request, res: Response, _: NextFunction) => {
     await handler.handleError(err, res)

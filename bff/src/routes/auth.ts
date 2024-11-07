@@ -8,15 +8,15 @@ import { logoutAllController } from '../controllers/AuthService/logoutAllControl
 import { getUserInfoController } from '../controllers/UserService/getUserInfoController'
 import { protectedRoute } from '../middlewares/auth'
 
-const apiRoute = express.Router()
+const authRoute = express.Router()
 
-apiRoute.post('/signup', signUpController)
-apiRoute.post('/signin', signInController)
-apiRoute.post('/refresh', refreshTokenController)
-apiRoute.post('/logout', logoutController)
-apiRoute.post('/logoutOtherDevices', logoutAllController)
-apiRoute.get('/oauth', tokenExchangeController)
+authRoute.post('/signup', signUpController)
+authRoute.post('/signin', signInController)
+authRoute.post('/refresh', refreshTokenController)
+authRoute.post('/logout', logoutController)
+authRoute.post('/logoutOtherDevices', logoutAllController)
+authRoute.get('/oauth', tokenExchangeController)
 
-apiRoute.get('/getUserInfo', protectedRoute, getUserInfoController)
+authRoute.get('/getUserInfo', protectedRoute, getUserInfoController)
 
-export default apiRoute
+export default authRoute
