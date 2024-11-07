@@ -60,7 +60,7 @@ export const tokenExchangeController = async (req: TokenExchangeRequest, res: Re
         const expiredIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN!, 10)
         await redisClient.setToken(user?._id.toString(), refreshToken, expiredIn)
 
-        return res.status(HttpStatusCode.OK).json({ accessToken, refreshToken })
+        return res.status(HttpStatusCode.OK).json({ accessToken, refreshToken, email })
     } catch {
         return next(
             new AppError(
