@@ -15,13 +15,15 @@ export const refreshTokenController = async (req: Request, res: Response, next: 
     }
 
     try {
-        const { data: newAccessToken } = await axios.post<RefreshResponse>(
+        const { data } = await axios.post<RefreshResponse>(
             `${process.env.AUTH_SERVICE_BASE_URL}/api/security/refresh`,
             {
                 refreshToken
             }
         )
-        res.status(HttpStatusCode.OK).json(newAccessToken)
+
+        const { accessToken } = data
+        res.status(HttpStatusCode.OK).json({ accessToken })
     } catch (error) {
         return next(new AppError(ErrorsDescriptions.REFRESH_TOKEN_PROBLEM, true, error))
     }

@@ -14,6 +14,7 @@ interface SignInRequest extends Request {
 interface SignInResponse extends Response {
     accessToken: string
     refreshToken: string
+    userId: string
 }
 export const signInController = async (req: SignInRequest, res: Response, next: NextFunction) => {
     const { email, password } = req.body
@@ -24,10 +25,9 @@ export const signInController = async (req: SignInRequest, res: Response, next: 
             `${process.env.AUTH_SERVICE_BASE_URL}/api/security/signin`,
             validatedData
         )
-        const { accessToken, refreshToken } = data
-        res.status(HttpStatusCode.OK).json({ accessToken, refreshToken })
+        const { accessToken, refreshToken, userId } = data
+        res.status(HttpStatusCode.OK).json({ accessToken, refreshToken, userId })
     } catch (error) {
-        console.log(error, 'error')
         return next(new AppError(ErrorsDescriptions.SIGNIN_ERROR, true, error))
     }
 }

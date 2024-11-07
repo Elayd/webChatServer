@@ -17,6 +17,6 @@ apiRoute.post('/logout', logoutController)
 apiRoute.post('/logoutOtherDevices', logoutAllController)
 apiRoute.get('/oauth', tokenExchangeController)
 
-apiRoute.post('/getUserInfo', protectedRoute, getUserInfoController)
+apiRoute.get('/getUserInfo', protectedRoute, getUserInfoController)
 
 export default apiRoute

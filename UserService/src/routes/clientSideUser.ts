@@ -1,7 +1,7 @@
 import express from 'express'
-import { getUserByEmailController } from '../controllers/getUserByEmailController'
+import { getUserByIdController } from '../controllers/getUserByIdController'
 const clientSideUser = express.Router()
 
-clientSideUser.post('/getUserInfo', getUserByEmailController)
+clientSideUser.get('/getUserInfo', getUserByIdController)
 
 export default clientSideUser

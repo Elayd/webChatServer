@@ -5,8 +5,8 @@ import { createTokens } from '../helpers/createTokens'
 import HttpStatusCode from '../enums/httpStatusCodes'
 import { AppError } from '../helpers/errorHandler'
 import { CustomErrorCodes } from '../enums/customErrorCodes'
-import { getUserByEmail } from '../api/getUserByEmail'
 import { createUser } from '../api/createUser'
+import { getUserByEmail } from '../api/getUserByEmail'
 
 interface RegRequest extends Request {
     body: {
@@ -46,7 +46,7 @@ export const signUpController = async (req: RegRequest, res: Response, next: Nex
         const expiredIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN!, 10)
         await redisClient.setToken(newUser?._id.toString(), refreshToken, expiredIn)
 
-        return res.status(HttpStatusCode.OK).json({ accessToken, refreshToken })
+        return res.status(HttpStatusCode.OK).json({ accessToken, refreshToken, userId: newUser?._id })
     } catch {
         return next(
             new AppError(

@@ -12,7 +12,7 @@ interface TokenExchangeRequest extends Request {
 interface TokenExchangeResponse extends Response {
     accessToken: string
     refreshToken: string
-    email: string
+    userId: string
 }
 
 export const tokenExchangeController = async (req: TokenExchangeRequest, res: Response, next: NextFunction) => {
@@ -24,8 +24,8 @@ export const tokenExchangeController = async (req: TokenExchangeRequest, res: Re
         const { data } = await axios.get<TokenExchangeResponse>(
             `${process.env.AUTH_SERVICE_BASE_URL}/api/oauth/token?code=${code}`
         )
-        const { accessToken, refreshToken, email } = data
-        res.status(HttpStatusCode.OK).json({ accessToken, refreshToken, email })
+        const { accessToken, refreshToken, userId } = data
+        res.status(HttpStatusCode.OK).json({ accessToken, refreshToken, userId })
     } catch (error) {
         return next(new AppError(ErrorsDescriptions.TOKEN_EXCHANGE_ERROR, true, error))
     }

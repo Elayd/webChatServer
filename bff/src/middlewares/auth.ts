@@ -15,6 +15,7 @@ export const protectedRoute = (req: Request, res: Response, next: NextFunction) 
         })
         next()
     } catch {
+        // Обработать через методы класса AppError
         return res.status(401).json({ message: 'Wrong' })
     }
 }

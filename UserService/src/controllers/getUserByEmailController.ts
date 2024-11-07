@@ -2,15 +2,14 @@ import { Request, Response } from 'express'
 import User from '../models/user'
 
 interface GetUserByEmailRequest extends Request {
-    body: {
+    query: {
         email: string
     }
 }
 
 export const getUserByEmailController = async (req: GetUserByEmailRequest, res: Response) => {
-    const { email } = req.body
+    const { email } = req.query
 
-    console.log(email, 'email')
     try {
         const user = await User.findOne({ email })
         res.status(200).json(user)

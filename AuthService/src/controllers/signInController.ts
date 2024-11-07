@@ -63,7 +63,7 @@ export const signInController = async (req: AuthRequest, res: Response, next: Ne
 
         await redisClient.setToken(user?._id.toString(), refreshToken, expiredIn)
 
-        return res.status(HttpStatusCode.OK).json({ accessToken, refreshToken })
+        return res.status(HttpStatusCode.OK).json({ accessToken, refreshToken, userId: user?._id })
     } catch {
         return next(
             new AppError(

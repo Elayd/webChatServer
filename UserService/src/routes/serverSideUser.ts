@@ -3,7 +3,7 @@ import { getUserByEmailController } from '../controllers/getUserByEmailControlle
 import { createUserController } from '../controllers/createUserController'
 const serverSideUser = express.Router()
 
-serverSideUser.post('/getUserByEmail', getUserByEmailController)
+serverSideUser.get('/getUserByEmail', getUserByEmailController)
 serverSideUser.post('/createUser', createUserController)
 
 export default serverSideUser

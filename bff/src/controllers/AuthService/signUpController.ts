@@ -15,6 +15,7 @@ interface SignUpRequest extends Request {
 interface SignUpResponse extends Response {
     accessToken: string
     refreshToken: string
+    userId: string
 }
 
 export const signUpController = async (req: SignUpRequest, res: Response, next: NextFunction) => {
@@ -27,8 +28,8 @@ export const signUpController = async (req: SignUpRequest, res: Response, next: 
             `${process.env.AUTH_SERVICE_BASE_URL}/api/security/signup`,
             validatedData
         )
-        const { accessToken, refreshToken } = data
-        res.status(HttpStatusCode.OK).json({ accessToken, refreshToken })
+        const { accessToken, refreshToken, userId } = data
+        res.status(HttpStatusCode.OK).json({ accessToken, refreshToken, userId })
     } catch (error) {
         return next(new AppError(ErrorsDescriptions.SIGNUP_ERROR, true, error))
     }

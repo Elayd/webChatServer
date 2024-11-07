@@ -6,16 +6,18 @@ import { ErrorsDescriptions } from '../../enums/errorsDescriptions'
 import { User } from '../../types/user'
 
 interface getUserInfoRequest extends Request {
-    body: {
-        email: string
+    query: {
+        userId: string
     }
 }
 
 export const getUserInfoController = async (req: getUserInfoRequest, res: Response, next: NextFunction) => {
-    const { email } = req.body
+    const { userId } = req.query
 
     try {
-        const { data: user } = await axios.post<User>(`${process.env.USER_SERVICE_BASE_URL}/getUserInfo`, { email })
+        const { data: user } = await axios.get<User>(`${process.env.USER_SERVICE_BASE_URL}/getUserInfo`, {
+            params: { userId }
+        })
 
         let userInfo
         if (user?.typeAuth === 'google') {
@@ -34,7 +36,6 @@ export const getUserInfoController = async (req: getUserInfoRequest, res: Respon
         }
         res.status(HttpStatusCode.OK).json(userInfo)
     } catch (error) {
-        console.log(error, 'error')
         return next(new AppError(ErrorsDescriptions.GET_USER_INFO_ERROR, true, error))
     }
 }

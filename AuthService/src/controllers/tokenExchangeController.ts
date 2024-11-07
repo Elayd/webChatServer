@@ -6,8 +6,8 @@ import { NextFunction, Request, Response } from 'express'
 import { redisClient } from '../index'
 import { AppError } from '../helpers/errorHandler'
 import HttpStatusCode from '../enums/httpStatusCodes'
-import { getUserByEmail } from '../api/getUserByEmail'
 import { createUser } from '../api/createUser'
+import { getUserByEmail } from '../api/getUserByEmail'
 interface GoogleOAuthPayload {
     email: string
     name: string
@@ -60,7 +60,7 @@ export const tokenExchangeController = async (req: TokenExchangeRequest, res: Re
         const expiredIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN!, 10)
         await redisClient.setToken(user?._id.toString(), refreshToken, expiredIn)
 
-        return res.status(HttpStatusCode.OK).json({ accessToken, refreshToken, email })
+        return res.status(HttpStatusCode.OK).json({ accessToken, refreshToken, userId: user?._id })
     } catch {
         return next(
             new AppError(
