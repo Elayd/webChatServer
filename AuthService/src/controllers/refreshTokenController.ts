@@ -29,10 +29,8 @@ export const refreshTokenController = async (req: Request, res: Response, next: 
             algorithm: 'RS256'
         })
 
-        res.status(HttpStatusCode.OK).json({ accessToken: newAccessToken })
+        res.status(HttpStatusCode.OK).json({ accessToken: newAccessToken, userId: decoded.id })
     } catch {
-        return next(
-            new AppError('UNAUTHORIZED', HttpStatusCode.UNAUTHORIZED, 'UNAUTHORIZED', HttpStatusCode.FORBIDDEN, true)
-        )
+        return next(new AppError('FORBIDDEN', HttpStatusCode.FORBIDDEN, 'FORBIDDEN', HttpStatusCode.FORBIDDEN, true))
     }
 }
