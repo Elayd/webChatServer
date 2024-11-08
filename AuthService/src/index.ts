@@ -13,7 +13,7 @@ import { Response, Request, NextFunction } from 'express'
 
 dotenv.config()
 
-const app = express()
+export const app = express()
 
 const corsConfig = {
     origin: true,
@@ -37,6 +37,6 @@ app.use(async (err: Error, req: Request, res: Response, _: NextFunction) => {
     await handler.handleError(err, res)
 })
 
-app.listen(process.env.PORT, () => {
+export const server = app.listen(process.env.PORT, () => {
     console.log(`RUNNING PORT ${process.env.PORT}`)
 })
