@@ -5,7 +5,7 @@ export class RedisClient {
 
     constructor(url: string) {
         this.client = new Redis(url, {
-            lazyConnect: true
+            // lazyConnect: true
         })
 
         this.client.on('error', (err) => {
@@ -15,39 +15,43 @@ export class RedisClient {
 
     async deleteToken(userId: string, token: string): Promise<number> {
         const key = `${userId}:${token}`
-        await this.client.connect()
+        // await this.client.connect()
         const result = await this.client.del(key)
-        this.client.disconnect()
+        // this.client.disconnect()
         return result
     }
 
     async tokenExist(userId: string, token: string): Promise<number> {
         const key = `${userId}:${token}`
-        await this.client.connect()
+        // await this.client.connect()
         const result = await this.client.exists(key)
-        this.client.disconnect()
+        // this.client.disconnect()
         return result
     }
 
     async setToken(userId: string, token: string, expiredIn: number): Promise<void> {
         const key = `${userId}:${token}`
-        await this.client.connect()
+        // await this.client.connect()
         await this.client.set(key, process.env.JWT_REFRESH_EXPIRES_IN!, 'EX', expiredIn)
-        this.client.disconnect()
+        // this.client.disconnect()
     }
 
     async deleteAllTokensExlCurrent(userId: string, token: string): Promise<number> {
         const currentKey = `${userId}:${token}`
-        await this.client.connect()
+        // await this.client.connect()
         const keys = await this.client.keys(`${userId}:*`)
         const keysToDelete = keys.filter((key) => key !== currentKey)
         if (keysToDelete.length === 0) {
-            this.client.disconnect()
+            // this.client.disconnect()
             return 0
         }
         const deleteCount = await this.client.del(...keysToDelete)
-        this.client.disconnect()
+        // this.client.disconnect()
         return deleteCount
+    }
+
+    async disconnect() {
+        this.client.disconnect()
     }
 }
 

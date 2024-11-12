@@ -11,7 +11,7 @@ export const logoutAllController = async (req: Request, res: Response, next: Nex
     const { refreshToken } = req.body
 
     try {
-        const decoded = jwt.decode(refreshToken) as JwtPayload
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as JwtPayload
         await redisClient.deleteAllTokensExlCurrent(decoded.id.toString(), refreshToken)
         res.status(HttpStatusCode.OK).json({ message: 'Successfully logged from all devices out' })
     } catch {

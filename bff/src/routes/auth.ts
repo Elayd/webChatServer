@@ -5,8 +5,6 @@ import { logoutController } from '../controllers/AuthService/logoutController'
 import { tokenExchangeController } from '../controllers/AuthService/tokenExchangeController'
 import { signUpController } from '../controllers/AuthService/signUpController'
 import { logoutAllController } from '../controllers/AuthService/logoutAllController'
-import { getUserInfoController } from '../controllers/UserService/getUserInfoController'
-import { protectedRoute } from '../middlewares/auth'
 
 const authRoute = express.Router()
 
@@ -16,7 +14,5 @@ authRoute.post('/refresh', refreshTokenController)
 authRoute.post('/logout', logoutController)
 authRoute.post('/logoutOtherDevices', logoutAllController)
 authRoute.get('/oauth', tokenExchangeController)
-
-authRoute.get('/getUserInfo', protectedRoute, getUserInfoController)
 
 export default authRoute

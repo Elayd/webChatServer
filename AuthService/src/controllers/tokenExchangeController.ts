@@ -1,6 +1,5 @@
 import { getTokenParams } from '../helpers/oauth'
 import jwt from 'jsonwebtoken'
-import axios from 'axios'
 import { createTokens } from '../helpers/createTokens'
 import { NextFunction, Request, Response } from 'express'
 import { redisClient } from '../index'
@@ -8,6 +7,7 @@ import { AppError } from '../helpers/errorHandler'
 import HttpStatusCode from '../enums/httpStatusCodes'
 import { createUser } from '../api/createUser'
 import { getUserByEmail } from '../api/getUserByEmail'
+import { getOAuthToken } from '../api/getOAuthToken'
 interface GoogleOAuthPayload {
     email: string
     name: string
@@ -25,9 +25,7 @@ export const tokenExchangeController = async (req: TokenExchangeRequest, res: Re
     try {
         const tokenParam = getTokenParams(code)
 
-        const {
-            data: { id_token }
-        } = await axios.post(`${process.env.TOKEN_URL}`, tokenParam)
+        const id_token = await getOAuthToken(tokenParam)
 
         if (!id_token)
             return next(

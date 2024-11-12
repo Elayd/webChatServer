@@ -12,7 +12,7 @@ export const logoutController = async (req: Request, res: Response, next: NextFu
     const { refreshToken } = req.body
 
     try {
-        const decoded = jwt.decode(refreshToken) as JwtPayload
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as JwtPayload
         await redisClient.deleteToken(decoded.id.toString(), refreshToken)
         res.status(HttpStatusCode.OK).json({ message: 'Successfully logged out' })
     } catch {
