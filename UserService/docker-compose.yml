@@ -26,6 +26,8 @@ services:
             - AUTH_URL=${AUTH_URL}
             - NODE_ENV=${NODE_ENV}
             - SENTRY_DSN=${SENTRY_DSN}
+            - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
+            - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
 networks:
     mynetwork:
         name: mynetwork

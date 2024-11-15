@@ -48,6 +48,7 @@ services:
             - REDIS_URL=${REDIS_URL}
             - SENTRY_DSN=${SENTRY_DSN}
             - USER_SERVICE_BASE_URL=${USER_SERVICE_BASE_URL}
+            - JWT_PRIVATE_KEY=${JWT_PRIVATE_KEY}
 networks:
     mynetwork:
         name: mynetwork

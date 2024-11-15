@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { Request, Response, NextFunction } from 'express'
-import fs from 'fs'
-import path from 'path'
+
 export const protectedRoute = (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers['authorization']
     if (!authHeader) {
@@ -9,12 +8,12 @@ export const protectedRoute = (req: Request, res: Response, next: NextFunction) 
     }
     try {
         const token = authHeader.split(' ')[1]
-        const publicKEY = fs.readFileSync(path.resolve(process.cwd(), 'public.key'), 'utf8')
-        jwt.verify(token, publicKEY, {
+        jwt.verify(token, process.env.JWT_PUBLIC_KEY!, {
             algorithms: ['RS256']
         })
         next()
-    } catch {
+    } catch (error) {
+        console.log(error, 'a')
         // Обработать через методы класса AppError
         return res.status(401).json({ message: 'Wrong' })
     }

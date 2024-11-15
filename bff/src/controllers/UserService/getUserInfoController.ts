@@ -22,6 +22,7 @@ export const getUserInfoController = async (req: getUserInfoRequest, res: Respon
         let userInfo
         if (user?.typeAuth === 'google') {
             userInfo = {
+                userId,
                 email: user.email,
                 firstName: user.firstName,
                 secondName: user.secondName,

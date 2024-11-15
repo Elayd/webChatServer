@@ -1,14 +1,12 @@
-import jwt from 'jsonwebtoken'
 import supertest from 'supertest'
 import { app, redisClient, server } from '..'
 import HttpStatusCode from '../enums/httpStatusCodes'
+import { createTokens } from '../helpers/createTokens'
 
 describe('LogoutAll controller test', () => {
     it('LogoutAll with good refresh token', async () => {
         const expiredIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN!, 10)
-        const refreshToken = jwt.sign({ id: '6717f34c35b7547cde63221e' }, process.env.JWT_REFRESH_SECRET!, {
-            expiresIn: process.env.JWT_REFRESH_EXPIRES_IN
-        })
+        const { refreshToken } = createTokens('6717f34c35b7547cde63221e')
         await redisClient.setToken('6717f34c35b7547cde63221e', refreshToken, expiredIn)
 
         const response = await supertest(app).post('/api/security/refresh').send({ refreshToken })

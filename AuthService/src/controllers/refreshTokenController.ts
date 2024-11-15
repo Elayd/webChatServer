@@ -1,8 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { NextFunction, Request, Response } from 'express'
 import { redisClient } from '../index'
-import fs from 'fs'
-import path from 'path'
 import { AppError } from '../helpers/errorHandler'
 import HttpStatusCode from '../enums/httpStatusCodes'
 
@@ -23,8 +21,7 @@ export const refreshTokenController = async (req: Request, res: Response, next: 
             )
         }
 
-        const privateKEY = fs.readFileSync(path.resolve('private.key'), 'utf8')
-        const newAccessToken = jwt.sign({ id: decoded.id }, privateKEY, {
+        const newAccessToken = jwt.sign({ id: decoded.id }, process.env.JWT_PRIVATE_KEY!, {
             expiresIn: process.env.JWT_EXPIRES_IN,
             algorithm: 'RS256'
         })
