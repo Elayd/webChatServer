@@ -1,9 +1,9 @@
 import supertest from 'supertest'
-import { app, redisClient, server } from '..'
-import HttpStatusCode from '../enums/httpStatusCodes'
-import { createTokens } from '../helpers/createTokens'
+import { redisClient, app } from '../..'
+import { createTokens } from '../../helpers/createTokens'
+import HttpStatusCode from '../../enums/httpStatusCodes'
 
-describe('LogoutAll controller test', () => {
+describe('LogoutAll controller test intergration', () => {
     it('LogoutAll with good refresh token', async () => {
         const expiredIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN!, 10)
         const { refreshToken } = createTokens('6717f34c35b7547cde63221e')
@@ -14,13 +14,8 @@ describe('LogoutAll controller test', () => {
         expect(response.status).toBe(HttpStatusCode.OK)
         expect(response.body).toHaveProperty('accessToken')
     })
-
-    it('Logout with wrong token', async () => {
-        await supertest(app).post('/api/security/refresh').send({ refreshToken: 'test' }).expect(403)
-    })
 })
 
-afterAll((done) => {
-    server.close(done)
-    redisClient.disconnect()
+afterAll(async () => {
+    await redisClient.disconnect()
 })

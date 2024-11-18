@@ -37,6 +37,11 @@ app.use(async (err: Error, req: Request, res: Response, _: NextFunction) => {
     await handler.handleError(err, res)
 })
 
-export const server = app.listen(process.env.PORT, () => {
-    console.log(`RUNNING PORT ${process.env.PORT}`)
-})
+let server
+if (process.env.NODE_ENV !== 'test') {
+    server = app.listen(process.env.PORT, () => {
+        console.log(`RUNNING PORT ${process.env.PORT}`)
+    })
+}
+
+export default server

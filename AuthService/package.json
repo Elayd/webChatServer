@@ -8,7 +8,8 @@
         "start": "node ./dist/index.js",
         "dev": "nodemon ./src/index.ts",
         "format": "eslint src/**/*.ts --fix",
-        "test": "docker compose run app npx jest --detectOpenHandles",
+        "test:unit": "jest --selectProjects unit NODE_ENV=test",
+        "test:integration": "docker compose run -e NODE_ENV=test app npx jest --selectProjects integration --detectOpenHandles && docker compose down --volumes",
         "sentry:sourcemaps": "sentry-cli sourcemaps inject --org elayd --project node-express ../../../../../dist && sentry-cli sourcemaps upload --org elayd --project node-express ../../../../../dist"
     },
     "keywords": [],

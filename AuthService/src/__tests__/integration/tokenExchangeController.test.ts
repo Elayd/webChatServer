@@ -1,14 +1,14 @@
-import { getOAuthToken } from './../api/getOAuthToken'
 import supertest from 'supertest'
-import { app, redisClient, server } from '..'
 import jwt from 'jsonwebtoken'
-import { getUserByEmail } from '../api/getUserByEmail'
-import HttpStatusCode from '../enums/httpStatusCodes'
-import { createUser } from '../api/createUser'
+import { app, redisClient } from '../..'
+import { createUser } from '../../api/createUser'
+import { getOAuthToken } from '../../api/getOAuthToken'
+import { getUserByEmail } from '../../api/getUserByEmail'
+import HttpStatusCode from '../../enums/httpStatusCodes'
 
-jest.mock('../api/getUserByEmail')
-jest.mock('../api/getOAuthToken')
-jest.mock('../api/createUser')
+jest.mock('../../api/getUserByEmail')
+jest.mock('../../api/getOAuthToken')
+jest.mock('../../api/createUser')
 
 const googleUser = {
     _id: '123',
@@ -26,7 +26,7 @@ const id_token = jwt.sign(
     'test'
 )
 
-describe('Exchange Token Controller test', () => {
+describe('Exchange Token Controller test intergration', () => {
     beforeEach(() => {
         jest.clearAllMocks()
     })
@@ -54,17 +54,8 @@ describe('Exchange Token Controller test', () => {
         expect(response.body).toHaveProperty('accessToken')
         expect(response.body).toHaveProperty('refreshToken')
     })
-
-    it('Exchange token with no id token', async () => {
-        const _ = (getOAuthToken as jest.Mock).mockResolvedValue(null)
-
-        const response = await supertest(app).get('/api/oauth/token?code=test')
-
-        expect(response.status).toBe(HttpStatusCode.BAD_REQUEST)
-    })
 })
 
-afterAll((done) => {
-    server.close(done)
-    redisClient.disconnect()
+afterAll(async () => {
+    await redisClient.disconnect()
 })

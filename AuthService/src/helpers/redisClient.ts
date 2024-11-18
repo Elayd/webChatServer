@@ -8,9 +8,9 @@ export class RedisClient {
             // lazyConnect: true
         })
 
-        this.client.on('error', (err) => {
-            console.error('Redis error:', err)
-        })
+        // this.client.on('error', (err) => {
+        //     console.error('Redis error:', err)
+        // })
     }
 
     async deleteToken(userId: string, token: string): Promise<number> {
