@@ -29,7 +29,7 @@ export const signUpController = async (req: SignUpRequest, res: Response, next: 
             validatedData
         )
         const { accessToken, refreshToken, userId } = data
-        res.status(HttpStatusCode.OK).json({ accessToken, refreshToken, userId })
+        res.status(HttpStatusCode.CREATED).json({ accessToken, refreshToken, userId })
     } catch (error) {
         return next(new AppError(ErrorsDescriptions.SIGNUP_ERROR, true, error))
     }

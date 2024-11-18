@@ -1,5 +1,8 @@
 import axios from 'axios'
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
+import HttpStatusCode from '../../enums/httpStatusCodes'
+import { AppError } from '../../helpers/errorHandler'
+import { ErrorsDescriptions } from '../../enums/errorsDescriptions'
 
 interface ChangeUserDataRequest extends Request {
     body: {
@@ -9,7 +12,7 @@ interface ChangeUserDataRequest extends Request {
     }
 }
 
-export const changeUserInfoController = async (req: ChangeUserDataRequest, res: Response) => {
+export const changeUserInfoController = async (req: ChangeUserDataRequest, res: Response, next: NextFunction) => {
     const { userId, firstName, secondName } = req.body
 
     try {
@@ -18,8 +21,8 @@ export const changeUserInfoController = async (req: ChangeUserDataRequest, res: 
             firstName,
             secondName
         })
-        res.status(200).json({ message: 'User data changed successfully' })
-    } catch {
-        res.status(500).json({ message: 'Internal server error' })
+        res.status(HttpStatusCode.OK).json({ message: 'User data changed successfully' })
+    } catch (error) {
+        return next(new AppError(ErrorsDescriptions.CHANGE_USER_INFO_ERROR, true, error))
     }
 }

@@ -1,0 +1,5 @@
+export enum CustomErrorCodes {
+    USER_NOT_FOUND = 101,
+    USER_ALREADY_EXISTS = 102,
+    USER_INVALID_CREDENTIALS = 103
+}

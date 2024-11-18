@@ -1,5 +1,8 @@
 import axios from 'axios'
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
+import HttpStatusCode from '../../enums/httpStatusCodes'
+import { ErrorsDescriptions } from '../../enums/errorsDescriptions'
+import { AppError } from '../../helpers/errorHandler'
 
 interface ChangeUserDataRequest extends Request {
     body: {
@@ -8,7 +11,7 @@ interface ChangeUserDataRequest extends Request {
     }
 }
 
-export const changeUserImageController = async (req: ChangeUserDataRequest, res: Response) => {
+export const changeUserImageController = async (req: ChangeUserDataRequest, res: Response, next: NextFunction) => {
     const { userId, picture } = req.body
 
     try {
@@ -16,8 +19,8 @@ export const changeUserImageController = async (req: ChangeUserDataRequest, res:
             userId,
             picture
         })
-        res.status(200).json({ message: 'User data changed successfully' })
-    } catch {
-        res.status(500).json({ message: 'Internal server error' })
+        res.status(HttpStatusCode.OK).json({ message: 'User data changed successfully' })
+    } catch (error) {
+        return next(new AppError(ErrorsDescriptions.CHANGE_USER_IMAGE_ERROR, true, error))
     }
 }

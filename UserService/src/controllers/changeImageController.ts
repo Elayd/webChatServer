@@ -1,5 +1,7 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import User from '../models/user'
+import HttpStatusCode from '../enums/httpStatusCodes'
+import { AppError } from '../helpers/errorHandler'
 
 interface ChangeUserImageRequest extends Request {
     body: {
@@ -8,13 +10,21 @@ interface ChangeUserImageRequest extends Request {
     }
 }
 
-export const changeUserImageController = async (req: ChangeUserImageRequest, res: Response) => {
+export const changeUserImageController = async (req: ChangeUserImageRequest, res: Response, next: NextFunction) => {
     const { userId, picture } = req.body
 
     try {
         await User.updateOne({ _id: userId }, { $set: { picture: picture } })
-        res.status(200).json({ message: 'Image was updated' })
+        res.status(HttpStatusCode.OK).json({ message: 'Image was updated' })
     } catch {
-        res.status(500).json({ message: 'Internal server error' })
+        return next(
+            new AppError(
+                'INTERNAL_SERVER_ERROR',
+                HttpStatusCode.INTERNAL_SERVER_ERROR,
+                'Internal server error',
+                HttpStatusCode.INTERNAL_SERVER_ERROR,
+                true
+            )
+        )
     }
 }

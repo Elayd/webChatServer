@@ -46,7 +46,7 @@ export const signUpController = async (req: RegRequest, res: Response, next: Nex
         const expiredIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN!, 10)
         await redisClient.setToken(newUser?._id.toString(), refreshToken, expiredIn)
 
-        return res.status(HttpStatusCode.OK).json({ accessToken, refreshToken, userId: newUser?._id })
+        return res.status(HttpStatusCode.CREATED).json({ accessToken, refreshToken, userId: newUser?._id })
     } catch {
         return next(
             new AppError(

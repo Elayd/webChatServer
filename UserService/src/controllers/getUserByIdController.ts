@@ -1,6 +1,8 @@
-import { Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 import User from '../models/user'
 import { ObjectId } from 'mongodb'
+import HttpStatusCode from '../enums/httpStatusCodes'
+import { AppError } from '../helpers/errorHandler'
 
 interface GetUserByIdRequest extends Request {
     query: {
@@ -8,13 +10,21 @@ interface GetUserByIdRequest extends Request {
     }
 }
 
-export const getUserByIdController = async (req: GetUserByIdRequest, res: Response) => {
+export const getUserByIdController = async (req: GetUserByIdRequest, res: Response, next: NextFunction) => {
     const { userId } = req.query
 
     try {
         const user = await User.findOne({ _id: new ObjectId(userId) })
-        res.status(200).json(user)
+        res.status(HttpStatusCode.OK).json(user)
     } catch {
-        res.status(500).json({ message: 'Internal server error' })
+        return next(
+            new AppError(
+                'INTERNAL_SERVER_ERROR',
+                HttpStatusCode.INTERNAL_SERVER_ERROR,
+                'Internal server error',
+                HttpStatusCode.INTERNAL_SERVER_ERROR,
+                true
+            )
+        )
     }
 }

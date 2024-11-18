@@ -1,5 +1,7 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import User from '../models/user'
+import HttpStatusCode from '../enums/httpStatusCodes'
+import { AppError } from '../helpers/errorHandler'
 
 type CommonAuthRequest = {
     email: string
@@ -20,7 +22,7 @@ interface CreateUserControllerRequest extends Request {
     body: CommonAuthRequest | GoogleAuthRequest
 }
 
-export const createUserController = async (req: CreateUserControllerRequest, res: Response) => {
+export const createUserController = async (req: CreateUserControllerRequest, res: Response, next: NextFunction) => {
     const { typeAuth } = req.body
 
     try {
@@ -45,8 +47,16 @@ export const createUserController = async (req: CreateUserControllerRequest, res
                 typeAuth: 'common'
             })
         }
-        res.status(200).json(user)
+        res.status(HttpStatusCode.CREATED).json(user)
     } catch {
-        res.status(500).json({ message: 'Internal server error' })
+        return next(
+            new AppError(
+                'INTERNAL_SERVER_ERROR',
+                HttpStatusCode.INTERNAL_SERVER_ERROR,
+                'Internal server error',
+                HttpStatusCode.INTERNAL_SERVER_ERROR,
+                true
+            )
+        )
     }
 }

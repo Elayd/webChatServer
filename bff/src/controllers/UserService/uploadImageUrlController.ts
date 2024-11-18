@@ -1,5 +1,8 @@
 import axios from 'axios'
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
+import HttpStatusCode from '../../enums/httpStatusCodes'
+import { AppError } from '../../helpers/errorHandler'
+import { ErrorsDescriptions } from '../../enums/errorsDescriptions'
 
 interface ChangeUserDataRequest extends Request {
     query: {
@@ -8,7 +11,7 @@ interface ChangeUserDataRequest extends Request {
     }
 }
 
-export const uploadImageUrlController = async (req: ChangeUserDataRequest, res: Response) => {
+export const uploadImageUrlController = async (req: ChangeUserDataRequest, res: Response, next: NextFunction) => {
     const { userId, fileType } = req.query
 
     try {
@@ -18,9 +21,8 @@ export const uploadImageUrlController = async (req: ChangeUserDataRequest, res: 
                 fileType
             }
         })
-        res.status(200).json(response.data)
+        res.status(HttpStatusCode.OK).json(response?.data)
     } catch (error) {
-        console.log(error, 'error')
-        res.status(500).json({ message: 'Internal server error' })
+        return next(new AppError(ErrorsDescriptions.UPLOAD_IMAGE_URL_ERROR, true, error))
     }
 }

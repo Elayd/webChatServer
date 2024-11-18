@@ -1,10 +1,13 @@
 import jwt from 'jsonwebtoken'
 import { Request, Response, NextFunction } from 'express'
+import HttpStatusCode from '../enums/httpStatusCodes'
+import { AppError } from '../helpers/errorHandler'
+import { ErrorsDescriptions } from '../enums/errorsDescriptions'
 
 export const protectedRoute = (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers['authorization']
     if (!authHeader) {
-        return res.status(401).json({ message: 'No token' })
+        return res.status(HttpStatusCode.UNAUTHORIZED).json({ message: 'No token' })
     }
     try {
         const token = authHeader.split(' ')[1]
@@ -12,9 +15,7 @@ export const protectedRoute = (req: Request, res: Response, next: NextFunction) 
             algorithms: ['RS256']
         })
         next()
-    } catch (error) {
-        console.log(error, 'a')
-        // Обработать через методы класса AppError
-        return res.status(401).json({ message: 'Wrong' })
+    } catch {
+        return next(new AppError(ErrorsDescriptions.TOKEN_PROVIDED_ERROR, true, null, HttpStatusCode.UNAUTHORIZED))
     }
 }
