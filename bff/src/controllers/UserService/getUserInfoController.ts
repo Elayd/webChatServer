@@ -4,24 +4,36 @@ import { AppError } from '../../helpers/errorHandler'
 import HttpStatusCode from '../../enums/httpStatusCodes'
 import { ErrorsDescriptions } from '../../enums/errorsDescriptions'
 import { User } from '../../types/user'
+import { cacheManager } from '../../helpers/redisCache'
 
-interface getUserInfoRequest extends Request {
+// Определение типа запроса с параметром userId в query
+
+interface GetUserInfoRequest extends Request {
     query: {
         userId: string
     }
 }
 
-export const getUserInfoController = async (req: getUserInfoRequest, res: Response, next: NextFunction) => {
+interface UserInfo {
+    userId: string
+    email: string
+    firstName: string
+    secondName: string
+    fullName: string
+    picture: string
+}
+export const getUserInfoController = async (req: GetUserInfoRequest, res: Response, next: NextFunction) => {
     const { userId } = req.query
 
-    try {
-        const { data: user } = await axios.get<User>(`${process.env.USER_SERVICE_BASE_URL}/getUserInfo`, {
-            params: { userId }
-        })
+    const cacheKey = `userInfo:${userId}`
 
-        let userInfo
-        if (user?.typeAuth === 'google') {
-            userInfo = {
+    try {
+        const userInfo = await cacheManager.cacheRequest<UserInfo>(cacheKey, async () => {
+            const { data: user } = await axios.get<User>(`${process.env.USER_SERVICE_BASE_URL}/getUserInfo`, {
+                params: { userId }
+            })
+
+            const userInfo: UserInfo = {
                 userId,
                 email: user.email,
                 firstName: user.firstName,
@@ -29,12 +41,10 @@ export const getUserInfoController = async (req: getUserInfoRequest, res: Respon
                 fullName: user.fullName,
                 picture: user.picture
             }
-        } else {
-            userInfo = {
-                email: user?.email
-                // После добавлю затычные данные
-            }
-        }
+
+            return userInfo
+        })
+
         res.status(HttpStatusCode.OK).json(userInfo)
     } catch (error) {
         return next(new AppError(ErrorsDescriptions.GET_USER_INFO_ERROR, true, error))

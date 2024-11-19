@@ -1,14 +1,5 @@
-interface CommonUser {
+type BaseUser = {
     _id: string
-    typeAuth: 'common'
-    email: string
-    password: string
-    __v: number
-}
-
-interface GoogleUser {
-    _id: string
-    typeAuth: 'google'
     email: string
     firstName: string
     secondName: string
@@ -17,4 +8,6 @@ interface GoogleUser {
     __v: number
 }
 
-export type User = CommonUser | GoogleUser
+export type User =
+    | (BaseUser & { typeAuth: 'common'; password: string })
+    | (BaseUser & { typeAuth: 'google'; password?: never })

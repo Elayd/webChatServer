@@ -7,10 +7,12 @@ import authRoute from './routes/auth'
 import { handler } from './helpers/errorHandler'
 import { Response, Request, NextFunction } from 'express'
 import userRoute from './routes/user'
-
+import Redis from 'ioredis'
 dotenv.config()
 
 const app = express()
+
+export const redisClient = new Redis(process.env.REDIS_URL!)
 
 const corsConfig = {
     origin: true,

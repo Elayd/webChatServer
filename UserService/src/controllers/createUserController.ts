@@ -41,10 +41,16 @@ export const createUserController = async (req: CreateUserControllerRequest, res
         } else {
             const { email, password } = req.body
 
+            const login = email.split('@')[0]
+
             user = await User.create({
                 email: email,
                 password: password,
-                typeAuth: 'common'
+                typeAuth: 'common',
+                firstName: login,
+                secondName: '',
+                fullName: '',
+                picture: ''
             })
         }
         res.status(HttpStatusCode.CREATED).json(user)

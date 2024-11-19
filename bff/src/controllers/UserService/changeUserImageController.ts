@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express'
 import HttpStatusCode from '../../enums/httpStatusCodes'
 import { ErrorsDescriptions } from '../../enums/errorsDescriptions'
 import { AppError } from '../../helpers/errorHandler'
+import { cacheManager } from '../../helpers/redisCache'
 
 interface ChangeUserDataRequest extends Request {
     body: {
@@ -19,6 +20,7 @@ export const changeUserImageController = async (req: ChangeUserDataRequest, res:
             userId,
             picture
         })
+        await cacheManager.invalidateQuery(`userInfo:${userId}`)
         res.status(HttpStatusCode.OK).json({ message: 'User data changed successfully' })
     } catch (error) {
         return next(new AppError(ErrorsDescriptions.CHANGE_USER_IMAGE_ERROR, true, error))
