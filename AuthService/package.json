@@ -9,7 +9,7 @@
         "dev": "nodemon ./src/index.ts",
         "format": "eslint src/**/*.ts --fix",
         "test:unit": "jest --selectProjects unit NODE_ENV=test",
-        "test:integration": "docker compose run -e NODE_ENV=test app npx jest --selectProjects integration --detectOpenHandles && docker compose down --volumes",
+        "test:integration": "docker compose -f docker-compose-test.yml run -e NODE_ENV=test app-test npx jest --selectProjects integration --detectOpenHandles && docker compose -f docker-compose-test.yml down",
         "sentry:sourcemaps": "sentry-cli sourcemaps inject --org elayd --project node-express ../../../../../dist && sentry-cli sourcemaps upload --org elayd --project node-express ../../../../../dist"
     },
     "keywords": [],
