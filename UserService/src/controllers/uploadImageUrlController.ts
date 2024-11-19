@@ -14,12 +14,12 @@ interface UploadImageRequest extends Request {
 
 const s3 = new S3({
     credentials: {
-        accessKeyId: 'edfaa1304e5b466aaaef3d635e0e757a',
-        secretAccessKey: '62aef3840537421cae2658b03c9d78a5'
+        accessKeyId: process.env.AWS_ACCESS_KEY!,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!
     },
-    endpoint: 'https://webchatapp.s3.ru-1.storage.selcloud.ru',
+    endpoint: process.env.AWS_BUCKET_URL!,
     forcePathStyle: true,
-    region: 'ru-1',
+    region: process.env.AWS_REGION!,
     apiVersion: 'latest'
 })
 
@@ -29,7 +29,7 @@ export const uploadImageUrlController = async (req: UploadImageRequest, res: Res
     const key = `${userId}/${uuidv4()}.${type}`
 
     const s3Params = {
-        Bucket: 'webchatapp',
+        Bucket: process.env.AWS_BUCKET_NAME!,
         Key: key,
         ContentType: fileType
     }

@@ -23,11 +23,13 @@ services:
             - ORIGIN=${ORIGIN}
             - PORT=${PORT}
             - MONGODB_URI=${MONGODB_URI}
-            - AUTH_URL=${AUTH_URL}
             - NODE_ENV=${NODE_ENV}
             - SENTRY_DSN=${SENTRY_DSN}
             - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
             - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+            - AWS_REGION=${AWS_REGION}
+            - AWS_BUCKET_URL=${AWS_BUCKET_URL}
+            - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
 networks:
     mynetwork:
         name: mynetwork
