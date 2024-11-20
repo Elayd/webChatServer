@@ -4,6 +4,7 @@ import HttpStatusCode from '../../enums/httpStatusCodes'
 import { AppError } from '../../helpers/errorHandler'
 import { ErrorsDescriptions } from '../../enums/errorsDescriptions'
 import { cacheManager } from '../../helpers/redisCache'
+import { ChangeUserDataRequestSchema } from '../../schemas/changeUserDataRequestSchema'
 
 interface ChangeUserDataRequest extends Request {
     body: {
@@ -14,9 +15,9 @@ interface ChangeUserDataRequest extends Request {
 }
 
 export const changeUserInfoController = async (req: ChangeUserDataRequest, res: Response, next: NextFunction) => {
-    const { userId, firstName, secondName } = req.body
-
     try {
+        const { userId, firstName, secondName } = ChangeUserDataRequestSchema.parse(req.body)
+
         await axios.put(`${process.env.USER_SERVICE_BASE_URL}/changeUserInfo`, {
             userId,
             firstName,

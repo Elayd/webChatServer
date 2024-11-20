@@ -3,18 +3,18 @@ import { NextFunction, Request, Response } from 'express'
 import HttpStatusCode from '../../enums/httpStatusCodes'
 import { AppError } from '../../helpers/errorHandler'
 import { ErrorsDescriptions } from '../../enums/errorsDescriptions'
+import { UploadImageUrlRequestSchema } from '../../schemas/uploadImageUrlRequestSchema'
 
-interface ChangeUserDataRequest extends Request {
+interface UploadImageUrlRequest extends Request {
     query: {
         userId: string
         fileType: string
     }
 }
 
-export const uploadImageUrlController = async (req: ChangeUserDataRequest, res: Response, next: NextFunction) => {
-    const { userId, fileType } = req.query
-
+export const uploadImageUrlController = async (req: UploadImageUrlRequest, res: Response, next: NextFunction) => {
     try {
+        const { userId, fileType } = UploadImageUrlRequestSchema.parse(req.query)
         const response = await axios.get(`${process.env.USER_SERVICE_BASE_URL}/uploadImageUrl`, {
             params: {
                 userId,

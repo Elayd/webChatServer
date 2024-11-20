@@ -5,8 +5,7 @@ import HttpStatusCode from '../../enums/httpStatusCodes'
 import { ErrorsDescriptions } from '../../enums/errorsDescriptions'
 import { User } from '../../types/user'
 import { cacheManager } from '../../helpers/redisCache'
-
-// Определение типа запроса с параметром userId в query
+import { GetUserInfoRequestSchema } from '../../schemas/getUserInfoRequestSchema'
 
 interface GetUserInfoRequest extends Request {
     query: {
@@ -23,18 +22,18 @@ interface UserInfo {
     picture: string
 }
 export const getUserInfoController = async (req: GetUserInfoRequest, res: Response, next: NextFunction) => {
-    const { userId } = req.query
-
-    const cacheKey = `userInfo:${userId}`
-
     try {
+        const { userId } = GetUserInfoRequestSchema.parse(req.query)
+
+        const cacheKey = `userInfo:${userId}`
+
         const userInfo = await cacheManager.cacheRequest<UserInfo>(cacheKey, async () => {
             const { data: user } = await axios.get<User>(`${process.env.USER_SERVICE_BASE_URL}/getUserInfo`, {
                 params: { userId }
             })
 
             const userInfo: UserInfo = {
-                userId,
+                userId: userId,
                 email: user.email,
                 firstName: user.firstName,
                 secondName: user.secondName,

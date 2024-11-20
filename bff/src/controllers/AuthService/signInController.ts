@@ -17,10 +17,8 @@ interface SignInResponse extends Response {
     userId: string
 }
 export const signInController = async (req: SignInRequest, res: Response, next: NextFunction) => {
-    const { email, password } = req.body
-
     try {
-        const validatedData = UserAuthSchema.parse({ email, password })
+        const validatedData = UserAuthSchema.parse(req.body)
         const { data } = await axios.post<SignInResponse>(
             `${process.env.AUTH_SERVICE_BASE_URL}/api/security/signin`,
             validatedData

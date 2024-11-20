@@ -4,18 +4,18 @@ import HttpStatusCode from '../../enums/httpStatusCodes'
 import { ErrorsDescriptions } from '../../enums/errorsDescriptions'
 import { AppError } from '../../helpers/errorHandler'
 import { cacheManager } from '../../helpers/redisCache'
+import { ChangeUserImageRequestSchema } from '../../schemas/changeUserImageRequestSchema'
 
-interface ChangeUserDataRequest extends Request {
+interface ChangeUserImageRequest extends Request {
     body: {
         userId: string
         picture: string
     }
 }
 
-export const changeUserImageController = async (req: ChangeUserDataRequest, res: Response, next: NextFunction) => {
-    const { userId, picture } = req.body
-
+export const changeUserImageController = async (req: ChangeUserImageRequest, res: Response, next: NextFunction) => {
     try {
+        const { userId, picture } = ChangeUserImageRequestSchema.parse(req.body)
         await axios.put(`${process.env.USER_SERVICE_BASE_URL}/changeUserAvatar`, {
             userId,
             picture

@@ -19,10 +19,8 @@ interface SignUpResponse extends Response {
 }
 
 export const signUpController = async (req: SignUpRequest, res: Response, next: NextFunction) => {
-    const { email, password } = req.body
-
     try {
-        const validatedData = UserAuthSchema.parse({ email, password })
+        const validatedData = UserAuthSchema.parse(req.body)
 
         const { data } = await axios.post<SignUpResponse>(
             `${process.env.AUTH_SERVICE_BASE_URL}/api/security/signup`,
