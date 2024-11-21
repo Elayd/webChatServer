@@ -1,8 +1,8 @@
-import supertest from 'supertest'
-import { app } from '../..'
-import HttpStatusCode from '../../enums/httpStatusCodes'
-import mongoose from 'mongoose'
-import User from '../../models/user'
+import supertest from 'supertest';
+import { app } from '../..';
+import HttpStatusCode from '../../enums/httpStatusCodes';
+import mongoose from 'mongoose';
+import User from '../../models/user';
 
 describe('Create user controller intergration', () => {
     it('Create user with common user data', async () => {
@@ -10,7 +10,7 @@ describe('Create user controller intergration', () => {
             email: 'test_boxem12ail@mail.ru',
             password: 'hashedPassword',
             typeAuth: 'common'
-        }
+        };
         const expectedUser = {
             email: authData.email,
             password: authData.password,
@@ -19,17 +19,17 @@ describe('Create user controller intergration', () => {
             secondName: '',
             fullName: '',
             picture: ''
-        }
+        };
 
-        await User.deleteOne({ email: authData.email })
+        await User.deleteOne({ email: authData.email });
 
-        const response = await supertest(app).post('/api/serverside/user/createUser').send(authData)
+        const response = await supertest(app).post('/api/serverside/user/createUser').send(authData);
 
-        expect(response.body).toMatchObject(expectedUser)
-        expect(response.status).toBe(HttpStatusCode.CREATED)
+        expect(response.body).toMatchObject(expectedUser);
+        expect(response.status).toBe(HttpStatusCode.CREATED);
 
-        await User.deleteOne({ email: authData.email })
-    })
+        await User.deleteOne({ email: authData.email });
+    });
 
     it('Create user with google user data', async () => {
         const authData = {
@@ -40,7 +40,7 @@ describe('Create user controller intergration', () => {
             family_name: 'test_family_name',
             name: 'test_name',
             picture: 'test_picture'
-        }
+        };
 
         const expectedUser = {
             email: authData.email,
@@ -49,19 +49,19 @@ describe('Create user controller intergration', () => {
             secondName: authData.family_name,
             fullName: authData.name,
             picture: authData.picture
-        }
+        };
 
-        await User.deleteOne({ email: authData.email })
+        await User.deleteOne({ email: authData.email });
 
-        const response = await supertest(app).post('/api/serverside/user/createUser').send(authData)
+        const response = await supertest(app).post('/api/serverside/user/createUser').send(authData);
 
-        expect(response.body).toMatchObject(expectedUser)
-        expect(response.status).toBe(HttpStatusCode.CREATED)
+        expect(response.body).toMatchObject(expectedUser);
+        expect(response.status).toBe(HttpStatusCode.CREATED);
 
-        await User.deleteOne({ email: authData.email })
-    })
-})
+        await User.deleteOne({ email: authData.email });
+    });
+});
 
 afterAll(() => {
-    mongoose.disconnect()
-})
+    mongoose.disconnect();
+});

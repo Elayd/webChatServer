@@ -1,8 +1,8 @@
-import express from 'express'
-import { tokenExchangeController } from '../controllers/tokenExchangeController'
+import express from 'express';
+import { tokenExchangeController } from '../controllers/tokenExchangeController';
 
-const oAuthRoute = express.Router()
+const oAuthRoute = express.Router();
 
-oAuthRoute.get('/token', tokenExchangeController)
+oAuthRoute.get('/token', tokenExchangeController);
 
-export default oAuthRoute
+export default oAuthRoute;

@@ -1,13 +1,13 @@
-import mongoose from 'mongoose'
+import mongoose from 'mongoose';
 
 interface User {
-    typeAuth: 'google' | 'common'
-    email: string
-    password: string
-    firstName: string
-    secondName: string
-    fullName: string
-    picture: string
+    typeAuth: 'google' | 'common';
+    email: string;
+    password: string;
+    firstName: string;
+    secondName: string;
+    fullName: string;
+    picture: string;
 }
 
 const userSchema = new mongoose.Schema({
@@ -17,14 +17,14 @@ const userSchema = new mongoose.Schema({
         type: String,
         select: true,
         required: function (this: User) {
-            return this.typeAuth !== 'google'
+            return this.typeAuth !== 'google';
         }
     },
     firstName: { type: String, required: false },
     secondName: { type: String, required: false },
     fullName: { type: String, required: false },
     picture: { type: String, required: false }
-})
+});
 
-const User = mongoose.model('User', userSchema)
-export default User
+const User = mongoose.model('User', userSchema);
+export default User;

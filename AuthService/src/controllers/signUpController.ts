@@ -1,25 +1,25 @@
-import bcrypt from 'bcryptjs'
-import { NextFunction, Request, Response } from 'express'
-import { redisClient } from '../index'
-import { createTokens } from '../helpers/createTokens'
-import HttpStatusCode from '../enums/httpStatusCodes'
-import { AppError } from '../helpers/errorHandler'
-import { CustomErrorCodes } from '../enums/customErrorCodes'
-import { createUser } from '../api/createUser'
-import { getUserByEmail } from '../api/getUserByEmail'
+import bcrypt from 'bcryptjs';
+import { NextFunction, Request, Response } from 'express';
+import { redisClient } from '../index';
+import { createTokens } from '../helpers/createTokens';
+import HttpStatusCode from '../enums/httpStatusCodes';
+import { AppError } from '../helpers/errorHandler';
+import { CustomErrorCodes } from '../enums/customErrorCodes';
+import { createUser } from '../api/createUser';
+import { getUserByEmail } from '../api/getUserByEmail';
 
 interface RegRequest extends Request {
     body: {
-        email: string
-        password: string
-    }
+        email: string;
+        password: string;
+    };
 }
 
 export const signUpController = async (req: RegRequest, res: Response, next: NextFunction) => {
-    const { email, password } = req.body
+    const { email, password } = req.body;
 
     try {
-        const user = await getUserByEmail(email)
+        const user = await getUserByEmail(email);
 
         if (user) {
             return next(
@@ -30,23 +30,23 @@ export const signUpController = async (req: RegRequest, res: Response, next: Nex
                     CustomErrorCodes.USER_ALREADY_EXISTS,
                     true
                 )
-            )
+            );
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10)
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = await createUser({
             email,
             password: hashedPassword,
             typeAuth: 'common'
-        })
+        });
 
-        const { accessToken, refreshToken } = createTokens(newUser?._id)
+        const { accessToken, refreshToken } = createTokens(newUser?._id);
 
-        const expiredIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN!, 10)
-        await redisClient.setToken(newUser?._id.toString(), refreshToken, expiredIn)
+        const expiredIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN!, 10);
+        await redisClient.setToken(newUser?._id.toString(), refreshToken, expiredIn);
 
-        return res.status(HttpStatusCode.CREATED).json({ accessToken, refreshToken, userId: newUser?._id })
+        return res.status(HttpStatusCode.CREATED).json({ accessToken, refreshToken, userId: newUser?._id });
     } catch {
         return next(
             new AppError(
@@ -56,6 +56,6 @@ export const signUpController = async (req: RegRequest, res: Response, next: Nex
                 HttpStatusCode.INTERNAL_SERVER_ERROR,
                 true
             )
-        )
+        );
     }
-}
+};

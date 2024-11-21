@@ -1,19 +1,19 @@
-import { NextFunction, Request, Response } from 'express'
-import { redisClient } from '../index'
-import jwt from 'jsonwebtoken'
-import HttpStatusCode from '../enums/httpStatusCodes'
-import { AppError } from '../helpers/errorHandler'
+import { NextFunction, Request, Response } from 'express';
+import { redisClient } from '../index';
+import jwt from 'jsonwebtoken';
+import HttpStatusCode from '../enums/httpStatusCodes';
+import { AppError } from '../helpers/errorHandler';
 
 interface JwtPayload {
-    id: string
+    id: string;
 }
 export const logoutAllController = async (req: Request, res: Response, next: NextFunction) => {
-    const { refreshToken } = req.body
+    const { refreshToken } = req.body;
 
     try {
-        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as JwtPayload
-        await redisClient.deleteAllTokensExlCurrent(decoded.id.toString(), refreshToken)
-        res.status(HttpStatusCode.OK).json({ message: 'Successfully logged from all devices out' })
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as JwtPayload;
+        await redisClient.deleteAllTokensExlCurrent(decoded.id.toString(), refreshToken);
+        res.status(HttpStatusCode.OK).json({ message: 'Successfully logged from all devices out' });
     } catch {
         return next(
             new AppError(
@@ -23,6 +23,6 @@ export const logoutAllController = async (req: Request, res: Response, next: Nex
                 HttpStatusCode.INTERNAL_SERVER_ERROR,
                 true
             )
-        )
+        );
     }
-}
+};

@@ -1,21 +1,21 @@
-import { CustomErrorCodes } from '../enums/customErrorCodes'
-import HttpStatusCode from '../enums/httpStatusCodes'
-import { Response } from 'express'
-import * as Sentry from '@sentry/node'
+import { CustomErrorCodes } from '../enums/customErrorCodes';
+import HttpStatusCode from '../enums/httpStatusCodes';
+import { Response } from 'express';
+import * as Sentry from '@sentry/node';
 
 process.on('uncaughtException', (error: Error) => {
-    handler.handleError(error)
-    if (!handler.isTrustedError(error)) process.exit(1)
-})
+    handler.handleError(error);
+    if (!handler.isTrustedError(error)) process.exit(1);
+});
 
 export class AppError extends Error {
-    public readonly name: string
-    public readonly httpCode: HttpStatusCode
-    public readonly isOperational: boolean
+    public readonly name: string;
+    public readonly httpCode: HttpStatusCode;
+    public readonly isOperational: boolean;
 
-    public readonly errorData?: Record<string, unknown>
+    public readonly errorData?: Record<string, unknown>;
 
-    public readonly messageCode: HttpStatusCode | CustomErrorCodes
+    public readonly messageCode: HttpStatusCode | CustomErrorCodes;
 
     constructor(
         name: string,
@@ -25,22 +25,22 @@ export class AppError extends Error {
         isOperational: boolean,
         errorData?: Record<string, unknown>
     ) {
-        super(description)
+        super(description);
 
-        Object.setPrototypeOf(this, new.target.prototype)
+        Object.setPrototypeOf(this, new.target.prototype);
 
-        this.name = name
-        this.httpCode = httpCode
-        this.isOperational = isOperational
-        this.errorData = errorData
-        this.messageCode = messageCode
+        this.name = name;
+        this.httpCode = httpCode;
+        this.isOperational = isOperational;
+        this.errorData = errorData;
+        this.messageCode = messageCode;
 
-        Error.captureStackTrace(this)
+        Error.captureStackTrace(this);
     }
 }
 class ErrorHandler {
     private isCustomErrorCode(messageCode: HttpStatusCode | CustomErrorCodes): boolean {
-        return Object.values(CustomErrorCodes).includes(messageCode as CustomErrorCodes)
+        return Object.values(CustomErrorCodes).includes(messageCode as CustomErrorCodes);
     }
 
     public async handleError(err: unknown, res?: Response): Promise<void> {
@@ -50,22 +50,22 @@ class ErrorHandler {
                     message: err.message,
                     code: err.messageCode,
                     ...(err.errorData && { data: err.errorData })
-                }
+                };
 
-                res.status(err.httpCode).json(responseBody)
+                res.status(err.httpCode).json(responseBody);
             }
 
             if (!this.isCustomErrorCode(err.messageCode)) {
-                Sentry.captureException(err)
+                Sentry.captureException(err);
             }
 
-            return
+            return;
         }
     }
 
     public isTrustedError(error: Error) {
-        return error instanceof AppError && error.isOperational
+        return error instanceof AppError && error.isOperational;
     }
 }
 
-export const handler = new ErrorHandler()
+export const handler = new ErrorHandler();
