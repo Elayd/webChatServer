@@ -24,7 +24,7 @@ interface CreateUserControllerRequest extends Request {
 
 export const createUserController = async (req: CreateUserControllerRequest, res: Response, next: NextFunction) => {
     const { typeAuth } = req.body
-
+    // Добавить валидацию, так как сюда ходит authService
     try {
         let user: InstanceType<typeof User>
 

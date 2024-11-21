@@ -11,7 +11,7 @@ import { Response, Request, NextFunction } from 'express'
 
 dotenv.config()
 
-const app = express()
+export const app = express()
 
 const corsConfig = {
     origin: true,
@@ -21,10 +21,12 @@ const corsConfig = {
 app.use(cors(corsConfig))
 app.options('*', cors(corsConfig))
 
-mongoose
-    .connect(process.env.MONGODB_URI!)
-    .then(() => console.log('Connected to MongoDB'))
-    .catch((err) => console.error('MongoDB connection error:', err))
+export const isTestedUnitProcess = process.env.NODE_ENV === 'test_unit'
+export const isTestedIntegrationProcess = process.env.NODE_ENV === 'test_intergration'
+
+if (process.env.NODE_ENV !== 'test_unit') {
+    mongoose.connect(process.env.MONGODB_URI!).catch((err) => console.error('MongoDB connection error:', err))
+}
 
 app.use(express.json())
 
@@ -39,6 +41,8 @@ app.use(async (err: Error, req: Request, res: Response, _: NextFunction) => {
     await handler.handleError(err, res)
 })
 
-app.listen(process.env.PORT, () => {
-    console.log(`RUNNING PORT ${process.env.PORT}`)
-})
+if (process.env.NODE_ENV !== 'test_unit' && process.env.NODE_ENV !== 'test_integration') {
+    app.listen(process.env.PORT, () => {
+        console.log(`RUNNING PORT ${process.env.PORT}`)
+    })
+}

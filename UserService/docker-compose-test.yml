@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+    mongodb-test:
+        image: mongo
+        container_name: mongodb-test
+        expose:
+            - 27018
+
+    app-test:
+        build: ./
+        container_name: user-test
+        volumes:
+            - ./:/usr/src/app
+            - /usr/src/app/node_modules
+        depends_on:
+            - mongodb-test
+        ports:
+            - 8014:8014
+        networks:
+            - mynetwork-test
+        environment:
+            - ORIGIN=${ORIGIN}
+            - PORT=8014
+            - MONGODB_URI=${MONGODB_URI}
+            - NODE_ENV=test_integration
+            - SENTRY_DSN=${SENTRY_DSN}
+            - AWS_ACCESS_KEY=mock-access-key
+            - AWS_SECRET_ACCESS_KEY=mock-secret-key
+            - AWS_REGION=us-east-1
+            - AWS_BUCKET_URL=https://mock-bucket-url
+            - AWS_BUCKET_NAME=mock-bucket
+networks:
+    mynetwork-test:
+        name: mynetwork-test

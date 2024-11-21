@@ -4,7 +4,6 @@ import * as Sentry from '@sentry/node'
 import HttpStatusCode from '../enums/httpStatusCodes'
 
 process.on('uncaughtException', (error: Error) => {
-    console.log('b')
     handler.handleError(error)
     if (!handler.isTrustedError(error)) process.exit(1)
 })
@@ -45,7 +44,6 @@ class ErrorHandler {
     }
 
     public async handleError(err: unknown, res?: Response): Promise<void> {
-        console.log('t')
         if (err instanceof AppError) {
             if (res) {
                 const responseBody = {
@@ -57,11 +55,13 @@ class ErrorHandler {
                 res.status(err.httpCode).json(responseBody)
             }
 
-            console.log(err.messageCode, 'messageCodeß')
-            if (!this.isCustomErrorCode(err.messageCode)) {
+            if (
+                !this.isCustomErrorCode(err.messageCode) &&
+                process.env.NODE_ENV !== 'test_unit' &&
+                process.env.NODE_ENV !== 'test_integration'
+            ) {
                 Sentry.captureException(err)
             }
-
             return
         }
     }
