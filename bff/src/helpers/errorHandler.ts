@@ -1,68 +1,68 @@
-import HttpStatusCode from '../enums/httpStatusCodes'
-import { Response } from 'express'
-import * as Sentry from '@sentry/node'
-import { isAxiosError } from 'axios'
-import { z } from 'zod'
-import { zodErrorsMapper } from './zodErrorsMapper'
+import HttpStatusCode from '../enums/httpStatusCodes';
+import { Response } from 'express';
+import * as Sentry from '@sentry/node';
+import { isAxiosError } from 'axios';
+import { z } from 'zod';
+import { zodErrorsMapper } from './zodErrorsMapper';
 
 process.on('uncaughtException', (error: Error) => {
-    handler.handleError(error)
-    if (!handler.isTrustedError(error)) process.exit(1)
-})
+  handler.handleError(error);
+  if (!handler.isTrustedError(error)) process.exit(1);
+});
 
 export class AppError extends Error {
-    public readonly error: unknown
-    public readonly isOperational: boolean
-    public readonly httpCode: HttpStatusCode | undefined
+  public readonly error: unknown;
+  public readonly isOperational: boolean;
+  public readonly httpCode: HttpStatusCode | undefined;
 
-    constructor(description: string, isOperational: boolean, error?: unknown, code?: HttpStatusCode) {
-        super(description)
+  constructor(description: string, isOperational: boolean, error?: unknown, code?: HttpStatusCode) {
+    super(description);
 
-        Object.setPrototypeOf(this, new.target.prototype)
+    Object.setPrototypeOf(this, new.target.prototype);
 
-        this.isOperational = isOperational
+    this.isOperational = isOperational;
 
-        this.error = error
+    this.error = error;
 
-        this.httpCode = code
+    this.httpCode = code;
 
-        Error.captureStackTrace(this)
-    }
+    Error.captureStackTrace(this);
+  }
 }
 
 class ErrorHandler {
-    public async handleError(appError: unknown, res?: Response): Promise<void> {
-        if (appError instanceof AppError && res) {
-            if (appError.httpCode) {
-                res.status(appError.httpCode).json({ message: appError.message })
-                Sentry.captureException(appError)
-                return
-            }
-            const serviceError = appError.error
-            if (isAxiosError(serviceError)) {
-                const status = serviceError.response?.status || HttpStatusCode.INTERNAL_SERVER_ERROR
-                const errorRes = serviceError.response?.data || 'An error occurred'
-                Sentry.captureException(appError)
-                res.status(status).json(errorRes)
-                return
-            }
+  public async handleError(appError: unknown, res?: Response): Promise<void> {
+    if (appError instanceof AppError && res) {
+      if (appError.httpCode) {
+        res.status(appError.httpCode).json({ message: appError.message });
+        Sentry.captureException(appError);
+        return;
+      }
+      const serviceError = appError.error;
+      if (isAxiosError(serviceError)) {
+        const status = serviceError.response?.status || HttpStatusCode.INTERNAL_SERVER_ERROR;
+        const errorRes = serviceError.response?.data || 'An error occurred';
+        Sentry.captureException(appError);
+        res.status(status).json(errorRes);
+        return;
+      }
 
-            if (serviceError instanceof z.ZodError) {
-                const errors = zodErrorsMapper(serviceError.formErrors.fieldErrors)
-                res.status(HttpStatusCode.BAD_REQUEST).json({ errors })
-                return
-            }
+      if (serviceError instanceof z.ZodError) {
+        const errors = zodErrorsMapper(serviceError.formErrors.fieldErrors);
+        res.status(HttpStatusCode.BAD_REQUEST).json({ errors });
+        return;
+      }
 
-            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' })
-            Sentry.captureException(appError)
-        }
-
-        return
+      res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
+      Sentry.captureException(appError);
     }
 
-    public isTrustedError(error: Error) {
-        return error instanceof AppError && error.isOperational
-    }
+    return;
+  }
+
+  public isTrustedError(error: Error) {
+    return error instanceof AppError && error.isOperational;
+  }
 }
 
-export const handler = new ErrorHandler()
+export const handler = new ErrorHandler();

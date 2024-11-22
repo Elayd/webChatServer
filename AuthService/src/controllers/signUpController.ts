@@ -9,53 +9,53 @@ import { createUser } from '../api/createUser';
 import { getUserByEmail } from '../api/getUserByEmail';
 
 interface RegRequest extends Request {
-    body: {
-        email: string;
-        password: string;
-    };
+  body: {
+    email: string;
+    password: string;
+  };
 }
 
 export const signUpController = async (req: RegRequest, res: Response, next: NextFunction) => {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    try {
-        const user = await getUserByEmail(email);
+  try {
+    const user = await getUserByEmail(email);
 
-        if (user) {
-            return next(
-                new AppError(
-                    'BAD_REQUEST',
-                    HttpStatusCode.BAD_REQUEST,
-                    'User already exists',
-                    CustomErrorCodes.USER_ALREADY_EXISTS,
-                    true
-                )
-            );
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const newUser = await createUser({
-            email,
-            password: hashedPassword,
-            typeAuth: 'common'
-        });
-
-        const { accessToken, refreshToken } = createTokens(newUser?._id);
-
-        const expiredIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN!, 10);
-        await redisClient.setToken(newUser?._id.toString(), refreshToken, expiredIn);
-
-        return res.status(HttpStatusCode.CREATED).json({ accessToken, refreshToken, userId: newUser?._id });
-    } catch {
-        return next(
-            new AppError(
-                'INTERNAL_SERVER_ERROR',
-                HttpStatusCode.INTERNAL_SERVER_ERROR,
-                'Internal server error',
-                HttpStatusCode.INTERNAL_SERVER_ERROR,
-                true
-            )
-        );
+    if (user) {
+      return next(
+        new AppError(
+          'BAD_REQUEST',
+          HttpStatusCode.BAD_REQUEST,
+          'User already exists',
+          CustomErrorCodes.USER_ALREADY_EXISTS,
+          true
+        )
+      );
     }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await createUser({
+      email,
+      password: hashedPassword,
+      typeAuth: 'common'
+    });
+
+    const { accessToken, refreshToken } = createTokens(newUser?._id);
+
+    const expiredIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN!, 10);
+    await redisClient.setToken(newUser?._id.toString(), refreshToken, expiredIn);
+
+    return res.status(HttpStatusCode.CREATED).json({ accessToken, refreshToken, userId: newUser?._id });
+  } catch {
+    return next(
+      new AppError(
+        'INTERNAL_SERVER_ERROR',
+        HttpStatusCode.INTERNAL_SERVER_ERROR,
+        'Internal server error',
+        HttpStatusCode.INTERNAL_SERVER_ERROR,
+        true
+      )
+    );
+  }
 };

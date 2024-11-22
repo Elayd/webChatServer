@@ -16,8 +16,8 @@ dotenv.config();
 export const app = express();
 
 const corsConfig = {
-    origin: true,
-    credentials: true
+  origin: true,
+  credentials: true
 };
 
 app.use(cors(corsConfig));
@@ -34,11 +34,11 @@ app.use('/api/security/', securityRoute);
 app.use('/api/oauth/', oAuthRoute);
 
 app.use(async (err: Error, req: Request, res: Response, _: NextFunction) => {
-    await handler.handleError(err, res);
+  await handler.handleError(err, res);
 });
 
 if (process.env.NODE_ENV !== 'test') {
-    app.listen(process.env.PORT, () => {
-        console.log(`RUNNING PORT ${process.env.PORT}`);
-    });
+  app.listen(process.env.PORT, () => {
+    console.log(`RUNNING PORT ${process.env.PORT}`);
+  });
 }

@@ -11,51 +11,51 @@ jest.mock('../../api/getOAuthToken');
 jest.mock('../../api/createUser');
 
 const googleUser = {
-    _id: '123',
-    typeAuth: 'google',
-    email: 'test@gmail.com',
-    firstName: 'test',
-    secondName: 'test',
-    fullName: 'test',
-    picture: 'test',
-    __v: 123
+  _id: '123',
+  typeAuth: 'google',
+  email: 'test@gmail.com',
+  firstName: 'test',
+  secondName: 'test',
+  fullName: 'test',
+  picture: 'test',
+  __v: 123
 };
 
 const id_token = jwt.sign(
-    { email: 'test@gmail.com', given_name: 'test', family_name: 'test', name: 'test', picture: 'test' },
-    'test'
+  { email: 'test@gmail.com', given_name: 'test', family_name: 'test', name: 'test', picture: 'test' },
+  'test'
 );
 
 describe('Exchange Token Controller test intergration', () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
-    it('Exchange token with good code with User in DB', async () => {
-        (getOAuthToken as jest.Mock).mockResolvedValue(id_token);
-        (getUserByEmail as jest.Mock).mockResolvedValue(googleUser);
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  it('Exchange token with good code with User in DB', async () => {
+    (getOAuthToken as jest.Mock).mockResolvedValue(id_token);
+    (getUserByEmail as jest.Mock).mockResolvedValue(googleUser);
 
-        const response = await supertest(app).get('/api/oauth/token?code=test');
+    const response = await supertest(app).get('/api/oauth/token?code=test');
 
-        expect(response.status).toBe(HttpStatusCode.OK);
-        expect(response.body).toHaveProperty('userId', googleUser._id);
-        expect(response.body).toHaveProperty('accessToken');
-        expect(response.body).toHaveProperty('refreshToken');
-    });
+    expect(response.status).toBe(HttpStatusCode.OK);
+    expect(response.body).toHaveProperty('userId', googleUser._id);
+    expect(response.body).toHaveProperty('accessToken');
+    expect(response.body).toHaveProperty('refreshToken');
+  });
 
-    it('Exchange token with good code without User in DB', async () => {
-        (getOAuthToken as jest.Mock).mockResolvedValue(id_token);
-        (getUserByEmail as jest.Mock).mockResolvedValue(null);
-        (createUser as jest.Mock).mockResolvedValue(googleUser);
+  it('Exchange token with good code without User in DB', async () => {
+    (getOAuthToken as jest.Mock).mockResolvedValue(id_token);
+    (getUserByEmail as jest.Mock).mockResolvedValue(null);
+    (createUser as jest.Mock).mockResolvedValue(googleUser);
 
-        const response = await supertest(app).get('/api/oauth/token?code=test');
+    const response = await supertest(app).get('/api/oauth/token?code=test');
 
-        expect(response.status).toBe(HttpStatusCode.OK);
-        expect(response.body).toHaveProperty('userId', googleUser._id);
-        expect(response.body).toHaveProperty('accessToken');
-        expect(response.body).toHaveProperty('refreshToken');
-    });
+    expect(response.status).toBe(HttpStatusCode.OK);
+    expect(response.body).toHaveProperty('userId', googleUser._id);
+    expect(response.body).toHaveProperty('accessToken');
+    expect(response.body).toHaveProperty('refreshToken');
+  });
 });
 
 afterAll(async () => {
-    await redisClient.disconnect();
+  await redisClient.disconnect();
 });

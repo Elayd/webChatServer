@@ -6,15 +6,15 @@ import { getOAuthToken } from '../../api/getOAuthToken';
 jest.mock('../../api/getOAuthToken');
 
 describe('Exchange Token Controller test unit', () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
-    it('Exchange token with no id token', async () => {
-        (getOAuthToken as jest.Mock).mockResolvedValue(null);
+  it('Exchange token with no id token', async () => {
+    (getOAuthToken as jest.Mock).mockResolvedValue(null);
 
-        const response = await supertest(app).get('/api/oauth/token?code=test');
+    const response = await supertest(app).get('/api/oauth/token?code=test');
 
-        expect(response.status).toBe(HttpStatusCode.BAD_REQUEST);
-    });
+    expect(response.status).toBe(HttpStatusCode.BAD_REQUEST);
+  });
 });
