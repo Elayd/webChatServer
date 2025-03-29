@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+    mongodb:
+        image: mongo
+        container_name: mongodb
+        expose:
+            - 27017
+
+    app:
+        build: ./
+        container_name: user
+        volumes:
+            - ./:/usr/src/app
+            - /usr/src/app/node_modules
+        depends_on:
+            - mongodb
+        ports:
+            - 8013:8013
+        networks:
+            - mynetwork
+        environment:
+            - ORIGIN=${ORIGIN}
+            - PORT=${PORT}
+            - MONGODB_URI=${MONGODB_URI}
+            - NODE_ENV=${NODE_ENV}
+            - SENTRY_DSN=${SENTRY_DSN}
+            - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
+            - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+            - AWS_REGION=${AWS_REGION}
+            - AWS_BUCKET_URL=${AWS_BUCKET_URL}
+            - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
+networks:
+    mynetwork:
+        name: mynetwork

@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+    redis-test:
+        image: redis
+        container_name: cache-test
+        command: --port 5555
+        ports:
+            - 5555:5555
+        expose:
+            - '5555'
+        networks:
+            - mynetwork-test
+
+    app-test:
+        build: ./
+        container_name: app-test
+        volumes:
+            - ./:/usr/src/app
+            - /usr/src/app/node_modules
+        depends_on:
+            - redis-test
+        ports:
+            - 7777:7777
+        networks:
+            - mynetwork-test
+        environment:
+            - ORIGIN=${ORIGIN}
+            - PORT=7777
+            - JWT_PRIVATE_KEY=${JWT_PRIVATE_KEY}
+            - JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY}
+            - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+            - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+            - JWT_REFRESH_EXPIRES_IN=${JWT_REFRESH_EXPIRES_IN}
+            - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+            - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+            - AUTH_URL=${AUTH_URL}
+            - TOKEN_URL=${TOKEN_URL}
+            - REDIRECT_URI=${REDIRECT_URI}
+            - NODE_ENV=${NODE_ENV}
+            - REDIS_URL=edis://cache-test:5555
+            - SENTRY_DSN=${SENTRY_DSN}
+            - USER_SERVICE_BASE_URL=${USER_SERVICE_BASE_URL}
+            - JWT_PRIVATE_KEY=${JWT_PRIVATE_KEY}
+
+networks:
+    mynetwork-test:
+        name: mynetwork-test

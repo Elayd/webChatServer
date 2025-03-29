@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+    redis:
+        image: redis
+        container_name: cache
+        expose:
+            - 6379
+        networks:
+            - mynetwork
+
+    redis-insight:
+        image: redis/redisinsight:latest
+        ports:
+            - 5540:5540
+        depends_on:
+            - redis
+        networks:
+            - mynetwork
+
+    app:
+        build: ./
+        container_name: auth
+        volumes:
+            - ./:/usr/src/app
+            - /usr/src/app/node_modules
+        depends_on:
+            - redis
+        ports:
+            - 8000:8000
+        networks:
+            - mynetwork
+        environment:
+            - ORIGIN=${ORIGIN}
+            - PORT=${PORT}
+            - JWT_PRIVATE_KEY=${JWT_PRIVATE_KEY}
+            - JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY}
+            - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+            - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+            - JWT_REFRESH_EXPIRES_IN=${JWT_REFRESH_EXPIRES_IN}
+            - MONGODB_URI=${MONGODB_URI}
+            - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+            - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+            - AUTH_URL=${AUTH_URL}
+            - TOKEN_URL=${TOKEN_URL}
+            - REDIRECT_URI=${REDIRECT_URI}
+            - NODE_ENV=${NODE_ENV}
+            - REDIS_URL=${REDIS_URL}
+            - SENTRY_DSN=${SENTRY_DSN}
+            - USER_SERVICE_BASE_URL=${USER_SERVICE_BASE_URL}
+            - JWT_PRIVATE_KEY=${JWT_PRIVATE_KEY}
+networks:
+    mynetwork:
+        name: mynetwork
